@@ -1,2 +1,2 @@
-def Recruit(object):
+class Recruit(object):
     1 + 1

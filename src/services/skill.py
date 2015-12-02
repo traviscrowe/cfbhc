@@ -22,4 +22,4 @@ def generate_skill_pair(min, max):
 def generate_weighted_value(kvps):
     for kvp in kvps:
         weighted_list += kvp['item'] * kvp['weight']
-    random.choice(weighted_list)
+    return random.choice(weighted_list)
