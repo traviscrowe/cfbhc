@@ -5,6 +5,7 @@ from flask_restful import Resource, fields, reqparse
 from services.playerclass import entire_class
 from services.skill import generate_skill_pair
 
+
 class RecruitAPI(Resource):
     def get(self, id):
         abort(404)
@@ -15,9 +16,11 @@ class RecruitAPI(Resource):
     def delete(self, id):
         abort(404)
 
+
 parser = reqparse.RequestParser()
 parser.add_argument('generateClass', bool, location='args')
 parser.add_argument('classSize', int, location='args')
+
 
 class RecruitListAPI(Resource):
     def post(self):
@@ -28,10 +31,10 @@ class RecruitListAPI(Resource):
         if entire_class == True:
             return entire_class(class_size)
 
-        skills = [ ]
+        skills = []
 
         for i in range(500):
             skill = generate_skill_pair(1, 100)
             skills.append(skill)
 
-        return Response(json.dumps(skills),  mimetype='application/json')
+        return Response(json.dumps(skills), mimetype='application/json')
