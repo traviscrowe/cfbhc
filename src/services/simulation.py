@@ -218,4 +218,26 @@ def rush(run_type, down, togo, yard_line, rb1, rb2, fb, te, offense, defense, pl
             if (yard_line - gain) < 100.0:
                 fumble = True
 
+    fumble_forcer = defense.get_player('LDE', 1)
+
+    if fumble:
+        if gain < 6 and (random_chance(95) or random_chance(5)):
+            if defense.gameplan.d_style is '43':
+                choices = [(defense.get_player('LOLB', 1), defense.get_player('LOLB', 1).tackling),
+                                    (defense.get_player('MLB', 1), defense.get_player('MLB', 1).tackling),
+                                    (defense.get_player('ROLB', 1), defense.get_player('ROLB', 1).tackling)]
+                fumble_forcer = weighted_choice(choices)
+            else:
+                choices = [(defense.get_player('LOLB', 1), defense.get_player('LOLB', 1).tackling),
+                                    (defense.get_player('LILB', 1), defense.get_player('LILB', 1).tackling),
+                                    (defense.get_player('RILB', 1), defense.get_player('RILB', 1).tackling),
+                                    (defense.get_player('ROLB', 1), defense.get_player('ROLB', 1).tackling)]
+                fumble_forcer = weighted_choice(choices)
+    else:
+        choices = [(defense.get_player('LCB', 1), defense.get_player('LCB', 1).tackling),
+                   (defense.get_player('RCB', 1), defense.get_player('RCB', 1).tackling),
+                   (defense.get_player('SS', 1), defense.get_player('SS', 1).tackling),
+                   (defense.get_player('FS', 1), defense.get_player('FS', 1).tackling)]
+        fumble_forcer = weighted_choice(choices)
+
     return gain, td

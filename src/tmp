@@ -106,279 +106,84 @@ if (randomChanceL(105-rusher.getStat(Player.BREAK_TACKLE)))
 
     Player fumbleForcer = defense.dl1;
 
-		// Code for fumbles.
-		if (fumble) {
+    // Code for fumbles.
+    if (fumble) {
 
-			// If Gain less than 6, fumble is probably forced by a DL or LB.
-			if (((gain < 6) && randomChanceL(95)) || randomChanceL(5)) {
+        // If Gain less than 6, fumble is probably forced by a DL or LB.
+        if (((gain < 6) && randomChanceL(95)) || randomChanceL(5)) {
 
-				// Exact % determined by wether in 4-3 or 3-4.
-				if (defense.the43) {
-					int fumbleNum = chooseX(defense.lb1.getStat(Team.TACKLE) + 1,
-							defense.lb2.getStat(Team.TACKLE) + 1,
-							defense.lb3.getStat(Team.TACKLE) + 1, 101, 0, 0, 0);
+            // Exact % determined by wether in 4-3 or 3-4.
+            if (defense.the43) {
+                int fumbleNum = chooseX(defense.lb1.getStat(Team.TACKLE) + 1,
+                        defense.lb2.getStat(Team.TACKLE) + 1,
+                        defense.lb3.getStat(Team.TACKLE) + 1, 101, 0, 0, 0);
 
-					if (fumbleNum == 1)
-						fumbleForcer = defense.lb1;
-					else if (fumbleNum == 2)
-						fumbleForcer = defense.lb2;
-					else if (fumbleNum == 3)
-						fumbleForcer = defense.lb3;
-					else if (fumbleNum == 4) {
-						int sackNum = chooseX(
-								defense.dl1.getStat(Team.PASS_RUSH) + 1,
-								defense.dl2.getStat(Team.PASS_RUSH) + 1,
-								defense.dl3.getStat(Team.PASS_RUSH) + 1,
-								defense.dl4.getStat(Team.PASS_RUSH) + 1, 0, 0, 0);
+                if (fumbleNum == 1)
+                    fumbleForcer = defense.lb1;
+                else if (fumbleNum == 2)
+                    fumbleForcer = defense.lb2;
+                else if (fumbleNum == 3)
+                    fumbleForcer = defense.lb3;
+                else if (fumbleNum == 4) {
+                    int sackNum = chooseX(
+                            defense.dl1.getStat(Team.PASS_RUSH) + 1,
+                            defense.dl2.getStat(Team.PASS_RUSH) + 1,
+                            defense.dl3.getStat(Team.PASS_RUSH) + 1,
+                            defense.dl4.getStat(Team.PASS_RUSH) + 1, 0, 0, 0);
 
-						if (sackNum == 1)
-							fumbleForcer = defense.dl1;
-						if (sackNum == 2)
-							fumbleForcer = defense.dl2;
-						if (sackNum == 3)
-							fumbleForcer = defense.dl3;
-						if (sackNum == 4)
-							fumbleForcer = defense.dl4;
-					}
-				} else {
-					int fumbleNum = chooseX(defense.lb1.getStat(Team.TACKLE)+ 1,
-							defense.lb2.getStat(Team.TACKLE)+ 1,
-							defense.lb3.getStat(Team.TACKLE)+ 1,
-							defense.dl4.getStat(Team.TACKLE)+ 1, 100+ 1, 0, 0);
+                    if (sackNum == 1)
+                        fumbleForcer = defense.dl1;
+                    if (sackNum == 2)
+                        fumbleForcer = defense.dl2;
+                    if (sackNum == 3)
+                        fumbleForcer = defense.dl3;
+                    if (sackNum == 4)
+                        fumbleForcer = defense.dl4;
+                }
+            } else {
+                int fumbleNum = chooseX(defense.lb1.getStat(Team.TACKLE)+ 1,
+                        defense.lb2.getStat(Team.TACKLE)+ 1,
+                        defense.lb3.getStat(Team.TACKLE)+ 1,
+                        defense.dl4.getStat(Team.TACKLE)+ 1, 100+ 1, 0, 0);
 
-					if (fumbleNum == 1)
-						fumbleForcer = defense.lb1;
-					else if (fumbleNum == 2)
-						fumbleForcer = defense.lb2;
-					else if (fumbleNum == 3)
-						fumbleForcer = defense.lb3;
-					else if (fumbleNum == 4)
-						fumbleForcer = defense.dl4;
-					else if (fumbleNum == 5) {
-						int sackNum = chooseX(
-								defense.dl1.getStat(Team.PASS_RUSH)+ 1,
-								defense.dl2.getStat(Team.PASS_RUSH)+ 1,
-								defense.dl3.getStat(Team.PASS_RUSH)+ 1, 0, 0, 0, 0);
+                if (fumbleNum == 1)
+                    fumbleForcer = defense.lb1;
+                else if (fumbleNum == 2)
+                    fumbleForcer = defense.lb2;
+                else if (fumbleNum == 3)
+                    fumbleForcer = defense.lb3;
+                else if (fumbleNum == 4)
+                    fumbleForcer = defense.dl4;
+                else if (fumbleNum == 5) {
+                    int sackNum = chooseX(
+                            defense.dl1.getStat(Team.PASS_RUSH)+ 1,
+                            defense.dl2.getStat(Team.PASS_RUSH)+ 1,
+                            defense.dl3.getStat(Team.PASS_RUSH)+ 1, 0, 0, 0, 0);
 
-						if (sackNum == 1)
-							fumbleForcer = defense.dl1;
-						if (sackNum == 2)
-							fumbleForcer = defense.dl2;
-						if (sackNum == 3)
-							fumbleForcer = defense.dl3;
+                    if (sackNum == 1)
+                        fumbleForcer = defense.dl1;
+                    if (sackNum == 2)
+                        fumbleForcer = defense.dl2;
+                    if (sackNum == 3)
+                        fumbleForcer = defense.dl3;
 
-					}
-				}
-			} else {
-				// Gain is 6 or more (or rare events with 5 or less), fumble was
-				// forced by secondary.
-				int fumbleNum = chooseX(defense.cb1.getStat(Team.TACKLE)+ 1,
-						defense.cb2.getStat(Team.TACKLE)+ 1,
-						defense.s1.getStat(Team.TACKLE)+ 1,
-						defense.s2.getStat(Team.TACKLE)+ 1, 0, 0, 0);
+                }
+            }
+        } else {
+            // Gain is 6 or more (or rare events with 5 or less), fumble was
+            // forced by secondary.
+            int fumbleNum = chooseX(defense.cb1.getStat(Team.TACKLE)+ 1,
+                    defense.cb2.getStat(Team.TACKLE)+ 1,
+                    defense.s1.getStat(Team.TACKLE)+ 1,
+                    defense.s2.getStat(Team.TACKLE)+ 1, 0, 0, 0);
 
-				if (fumbleNum == 1)
-					fumbleForcer = defense.cb1;
-				else if (fumbleNum == 2)
-					fumbleForcer = defense.cb2;
-				else if (fumbleNum == 3)
-					fumbleForcer = defense.s1;
-				else if (fumbleNum == 4)
-					fumbleForcer = defense.s2;
-			}
-		}
-
-
-String type = "Balanced";
-		if (position == QB) {
-			if ((getStat(SPEED) >= 90) || (getStat(THROW_POWER) >= 85)
-					|| (getStat(THROW_ACCURACY) >= 85)) {
-				if ((getStat(SPEED) >= getStat(THROW_POWER))
-						&& (getStat(SPEED) >= getStat(THROW_ACCURACY))) {
-					type = "Scrambling";
-				}
-				if ((getStat(THROW_POWER) >= getStat(SPEED))
-						&& (getStat(THROW_POWER) > getStat(THROW_ACCURACY))) {
-					type = "Pocket";
-				}
-				if ((getStat(THROW_ACCURACY) > getStat(THROW_POWER))
-						&& (getStat(THROW_ACCURACY) >= getStat(SPEED))) {
-					type = "Field General";
-				}
-
-				if (getStat(SPEED) >= 95) {
-					type = "Scrambling";
-				}
-
-				if ((getStat(THROW_POWER) >= 95)
-						&& (getStat(THROW_ACCURACY) >= 95)
-						&& (getStat(CONCENTRATION) >= 90)) {
-					type = "Elite";
-				}
-			}
-		} else if (position == FB) {
-			if ((getStat(SPEED) >= 85) || (getStat(BREAK_TACKLE) >= 85)
-					|| (getStat(BLOCKING) >= 85)) {
-				if ((getStat(SPEED) > getStat(BREAK_TACKLE))
-						&& (getStat(SPEED) > getStat(BLOCKING))) {
-					type = "Speed";
-				}
-				if ((getStat(BREAK_TACKLE) > getStat(SPEED))
-						&& (getStat(BREAK_TACKLE) > getStat(BLOCKING) )) {
-					type = "Power";
-				}
-				if ((getStat(BLOCKING) > getStat(BREAK_TACKLE))
-						&& (getStat(BLOCKING) > getStat(SPEED))) {
-					type = "Blocking";
-				}
-
-				if ((getStat(BLOCKING) >= 95) && (getStat(BREAK_TACKLE) >= 95) && (getStat(CONCENTRATION) >= 90)) {
-					type = "Elite";
-				}
-			}
-		} else if (position == RB) {
-			if ((getStat(SPEED) >= 85) || (getStat(BREAK_TACKLE) >= 85) || (getStat(AGILITY) >= 85)) {
-				if ((getStat(SPEED) > getStat(BREAK_TACKLE)) && (getStat(SPEED) > getStat(AGILITY))) {
-					type = "Speed";
-				}
-				if ((getStat(BREAK_TACKLE) > getStat(SPEED)) && (getStat(BREAK_TACKLE) > getStat(AGILITY))) {
-					type = "Power";
-				}
-				if ((getStat(AGILITY) > getStat(SPEED)) && (getStat(AGILITY) > getStat(BREAK_TACKLE))) {
-					type = "Agile";
-				}
-
-				if ((getStat(SPEED) >= 95)
-						&& (getStat(BREAK_TACKLE) >= 95)
-						&& ((getStat(CONCENTRATION) >= 90) || (getStat(CATCHING) >= 90))) {
-					type = "Elite";
-				}
-			}
-		} else if (position == WR) {
-			if ((getStat(SPEED) >= 85) || (getStat(CATCHING) >= 85)
-					|| (getStat(ACCELERATION) >= 85)) {
-				if ((getStat(SPEED) > getStat(CATCHING))
-						&& (getStat(SPEED) > getStat(ACCELERATION))) {
-					type = "Speed";
-				}
-				if ((getStat(CATCHING) >= getStat(SPEED))
-						&& (getStat(CATCHING) > getStat(ACCELERATION))) {
-					type = "Possession";
-				}
-				if ((getStat(ACCELERATION) > getStat(CATCHING))
-						&& (getStat(ACCELERATION) >= getStat(SPEED))) {
-					type = "Deep-threat";
-				}
-
-				if ((getStat(SPEED) >= 90) && (getStat(CATCHING) >= 97)
-						&& (getStat(ACCELERATION) >= 97)
-						&& (getStat(CONCENTRATION) >= 90)) {
-					type = "Elite";
-				}
-			}
-		} else if (position == TE) {
-			if ((getStat(BLOCKING) >= 85) || (getStat(CATCHING) >= 85)) {
-				if ((getStat(BLOCKING) >= getStat(CATCHING) + 2)) {
-					type = "Blocking";
-				}
-				if ((getStat(CATCHING) >= getStat(BLOCKING) + 2)) {
-					type = "Receiving";
-				}
-
-				if ((getStat(SPEED) >= 90) && (getStat(CATCHING) >= 95)
-						&& (getStat(BLOCKING) >= 95)
-						&& (getStat(CONCENTRATION) >= 90)) {
-					type = "Elite";
-				}
-			}
-		}
-
-		else if (position == OL) {
-			if ((getStat(BLOCKING) >= 85) || (getStat(PASS_PROTECT) >= 85)) {
-				if ((getStat(BLOCKING) >= getStat(PASS_PROTECT) + 2)) {
-					type = "Run-blocking";
-				}
-				if ((getStat(PASS_PROTECT) >= getStat(BLOCKING) + 2)) {
-					type = "Pass-blocking";
-				}
-
-				if ((getStat(BLOCKING) >= 97) && (getStat(PASS_PROTECT) >= 97)) {
-					type = "Elite";
-				}
-			}
-		}
-
-		else if (position == DL) {
-			if ((getStat(RUN_DEFENSE) >= 85) || (getStat(PASS_RUSH) >= 85)) {
-				if ((getStat(RUN_DEFENSE) >= getStat(PASS_RUSH) + 2)) {
-					type = "Run-defending";
-				}
-				if ((getStat(PASS_RUSH) >= getStat(RUN_DEFENSE) + 2)) {
-					type = "Pass-rushing";
-				}
-				if ((getStat(RUN_DEFENSE) >= 97) && (getStat(PASS_RUSH) >= 97)) {
-					type = "Elite";
-				}
-			}
-		}
-
-		else if (position == LB) {
-			if ((getStat(PASS_RUSH) >= 85) || (getStat(TACKLE) >= 85)
-					|| (getStat(COVERAGE) >= 85)) {
-				if ((getStat(PASS_RUSH) > getStat(TACKLE))
-						&& (getStat(PASS_RUSH) > getStat(COVERAGE))) {
-					type = "Pass-rushing";
-				}
-				if ((getStat(TACKLE) > getStat(PASS_RUSH))
-						&& (getStat(TACKLE) > getStat(COVERAGE))) {
-					type = "Run-defending";
-				}
-				if ((getStat(COVERAGE) > getStat(TACKLE))
-						&& (getStat(COVERAGE) > getStat(PASS_RUSH))) {
-					type = "Coverage";
-				}
-
-				if ((getStat(PASS_RUSH) >= 95) && (getStat(TACKLE) >= 95)
-						&& (getStat(COVERAGE) >= 90)) {
-					type = "Elite";
-				}
-			}
-		}
-
-		else if ((position == CB) || (position == S)) {
-			if ((getStat(CATCHING) >= 85) || (getStat(TACKLE) >= 85)
-					|| (getStat(COVERAGE) >= 85)) {
-				if ((getStat(CATCHING) > getStat(TACKLE))
-						&& (getStat(CATCHING) > getStat(COVERAGE))) {
-					type = "Big-play";
-				}
-				if ((getStat(TACKLE) > getStat(CATCHING))
-						&& (getStat(TACKLE) > getStat(COVERAGE))) {
-					type = "Hard-hitting";
-				}
-				if ((getStat(COVERAGE) > getStat(TACKLE))
-						&& (getStat(COVERAGE) > getStat(CATCHING))) {
-					type = "Shut-down";
-				}
-
-				if ((getStat(CATCHING) >= 90) && (getStat(TACKLE) >= 95)
-						&& (getStat(COVERAGE) >= 95)) {
-					type = "Elite";
-				}
-			}
-		}
-
-		else if (position == K) {
-			if ((getStat(KICK_ACCURACY) >= 85) || (getStat(KICK_POWER) >= 85)) {
-				if ((getStat(KICK_ACCURACY) >= getStat(KICK_POWER) + 2)) {
-					type = "Accurate";
-				}
-				if ((getStat(KICK_POWER) >= getStat(KICK_ACCURACY) + 2)) {
-					type = "Power";
-				}
-
-				if ((getStat(KICK_POWER) >= 97)
-						&& (getStat(KICK_ACCURACY) >= 97)) {
-					type = "Elite";
-				}
-			}
+            if (fumbleNum == 1)
+                fumbleForcer = defense.cb1;
+            else if (fumbleNum == 2)
+                fumbleForcer = defense.cb2;
+            else if (fumbleNum == 3)
+                fumbleForcer = defense.s1;
+            else if (fumbleNum == 4)
+                fumbleForcer = defense.s2;
+        }
+    }

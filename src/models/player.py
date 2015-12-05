@@ -1,7 +1,7 @@
 class Player(object):
     def __init__(self, name, throw_power, throw_accuracy, speed, break_tackle, catching,
-               agility, run_blocking, pass_blocking, acceleration, pass_rush, run_defense,
-               coverage, tackling, kick_power, kick_accuracy, concentration, position, dc_position, depth):
+                 agility, run_blocking, pass_blocking, acceleration, pass_rush, run_defense,
+                 coverage, tackling, kick_power, kick_accuracy, concentration, position, dc_position, depth):
         self.name = name
         self.throw_power = throw_power
         self.throw_accuracy = throw_accuracy
@@ -25,18 +25,17 @@ class Player(object):
         self.overall = get_overall_by_position(throw_power, throw_accuracy, speed, break_tackle, catching,
                                                agility, run_blocking, pass_blocking, acceleration, pass_rush,
                                                run_defense,
-                                               coverage, tackling, kick_power, kick_accuracy, concentration, position,
-                                               dc_position, depth)
+                                               coverage, tackling, kick_power, kick_accuracy, concentration, position)
         self.type = get_type_by_position(throw_power, throw_accuracy, speed, break_tackle, catching,
-                                      agility, run_blocking, pass_blocking, acceleration, pass_rush,
-                                      run_defense,
-                                      coverage, tackling, kick_power, kick_accuracy, concentration, position,
-                                      dc_position, depth)
+                                         agility, run_blocking, pass_blocking, acceleration, pass_rush,
+                                         run_defense,
+                                         coverage, tackling, kick_power, kick_accuracy, concentration, position,
+                                         dc_position, depth)
 
 
 def get_overall_by_position(throw_power, throw_accuracy, speed, break_tackle, catching,
                             agility, run_blocking, pass_blocking, acceleration, pass_rush, run_defense,
-                            coverage, tackle, kick_power, kick_accuracy, concentration, position, dc_position, depth):
+                            coverage, tackling, kick_power, kick_accuracy, concentration, position):
     if position is 'QB':
         return qb_overall(throw_power, throw_accuracy, speed, concentration)
     if position is 'RB':
@@ -49,18 +48,22 @@ def get_overall_by_position(throw_power, throw_accuracy, speed, break_tackle, ca
         return wr_overall(speed, catching, acceleration, concentration)
     if position is 'OT' or position is 'C' or position is 'OG':
         return ol_overall(run_blocking, pass_blocking)
-    # if position is 'DE' or position is 'DT': return dl_overall(pass_rush, run_defense)
-    # if position is 'OLB' or position is 'ILB': return lb_overall(pass_rush, tackling, coverage)
-    # if position is 'CB': return cb_overall(catching, coverage, tackle)
-    # if position is 'SS' or position is 'FS': return s_overall(catching, coverage, tackle)
-    # if position is 'K' or 'P': return st_overall(kick_power, kick_accuracy)
+    if position is 'DE' or position is 'DT':
+        return dl_overall(pass_rush, run_defense)
+    if position is 'OLB' or position is 'ILB':
+        return lb_overall(pass_rush, tackling, coverage)
+    if position is 'CB':
+        return cb_overall(catching, coverage, tackling)
+    if position is 'SS' or position is 'FS':
+        return s_overall(catching, coverage, tackling)
+    if position is 'K' or 'P':
+        return st_overall(kick_power, kick_accuracy)
 
 
 def get_type_by_position(throw_power, throw_accuracy, speed, break_tackle, catching,
-                                      agility, run_blocking, pass_blocking, acceleration, pass_rush,
-                                      run_defense,
-                                      coverage, tackling, kick_power, kick_accuracy, concentration, position,
-                                      dc_position, depth):
+                         agility, run_blocking, pass_blocking, pass_rush,
+                         run_defense,
+                         coverage, tackling, kick_power, kick_accuracy, position):
     if position is 'QB':
         return qb_type(throw_power, throw_accuracy, speed)
     if position is 'RB':
@@ -103,13 +106,38 @@ def te_overall(speed, catching, run_blocking, concentration):
     return overall
 
 
+def wr_overall(speed, catching, acceleration, concentration):
+    overall = (speed * 0.25) + (catching * 0.35) + (acceleration * 0.3) + (concentration * 0.1)
+    return overall
+
+
 def ol_overall(run_blocking, pass_blocking):
     overall = (run_blocking * 0.5) + (pass_blocking * 0.5)
     return overall
 
 
-def wr_overall(speed, catching, acceleration, concentration):
-    overall = (speed * 0.25) + (catching * 0.35) + (acceleration * 0.3) + (concentration * 0.1)
+def dl_overall(pass_rush, run_defense):
+    overall = (pass_rush * .5) + (run_defense * .5)
+    return overall
+
+
+def lb_overall(pass_rush, coverage, tackle):
+    overall = (pass_rush * .35) + (coverage * .25) + (tackle * .30)
+    return overall
+
+
+def cb_overall(catching, coverage, tackle):
+    overall = (.2 * catching) + (.5 * coverage) + (.3 * tackle)
+    return overall
+
+
+def s_overall(catching, coverage, tackle):
+    overall = (.25 * catching) + (.35 * coverage) + (.4 * tackle)
+    return overall
+
+
+def st_overall(kick_power, kick_accuracy):
+    overall = (.5 * kick_accuracy) + (.5 + kick_power)
     return overall
 
 
@@ -145,8 +173,8 @@ def te_type(catching, run_blocking):
     if catching >= 85 or run_blocking >= 85:
         return 'Receiving' if catching > run_blocking else 'Blocker'
     return 'Balanced'
-    
-    
+
+
 def wr_type(speed, catching):
     if speed >= 85 or catching >= 85:
         return 'Possession' if catching > speed else 'Speed'
@@ -169,7 +197,7 @@ def lb_type(pass_rush, tackle, coverage):
     if pass_rush >= 85 and tackle >= 85 and coverage >= 85:
         if pass_rush > tackle and pass_rush > coverage:
             return 'Pass Rusher'
-        if tackle > pass_rush and  tackle > coverage:
+        if tackle > pass_rush and tackle > coverage:
             return 'Run Stopper'
         if coverage > tackle and coverage > pass_rush:
             return 'Coverage'
