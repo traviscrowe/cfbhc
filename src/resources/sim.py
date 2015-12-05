@@ -4,7 +4,7 @@ from flask import request, Response
 from flask_restful import Resource
 from models.player import Player
 from models.gameplan import Gameplan
-from models.team import Team, get_player_at_dc_pos_and_depth
+from models.team import Team
 from services.simulation import rush
 
 
@@ -25,20 +25,25 @@ class SimAPI(Resource):
         def_team = Team(def_players, def_gameplan, defense['team_mod'])
 
         results = []
-        for x in range(0, 25):
-            results.append(int(rush(1, 1, 10, 80,
-                            get_player_at_dc_pos_and_depth(off_players, "RB", "RB", 1),
-                            get_player_at_dc_pos_and_depth(off_players, "RB", "RB", 2),
-                            get_player_at_dc_pos_and_depth(off_players, "FB", "FB", 1),
-                            get_player_at_dc_pos_and_depth(off_players, "TE", "TE", 1),
+        touchdowns = 0
+        for x in range(0, random.randint(250, 350)):
+            response = rush(1, 1, 10, random.randint(5, 80),
+                            off_team.get_player("RB", 1),
+                            off_team.get_player("RB", 2),
+                            off_team.get_player("FB", 1),
+                            off_team.get_player("TE", 1),
                             off_team,
                             def_team,
                             off_team.team_mod - def_team.team_mod,
-                            off_team.run_blocking - def_team.run_defense)))
+                            off_team.run_blocking - def_team.run_defense)
+            results.append(int(response[0]))
+            touchdowns += response[1]
 
         return Response("Troy White: "
                         + str(len(results))
                         + " for " + str(sum(results))
-                        + " yards for an average of "
+                        + " yards, "
+                        + str(touchdowns)
+                        + " TD for an average of "
                         + str(sum(results) / float(len(results))) + ". Long: "
                         + str(max(results)))

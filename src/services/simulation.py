@@ -140,7 +140,7 @@ def rush(run_type, down, togo, yard_line, rb1, rb2, fb, te, offense, defense, pl
 
         big_play_mod = 0
 
-        while random_chance(rusher.speed / 2 + (6 * big_play_mod)) and gain < 101:
+        while random_chance(rusher.speed / 2 + (6 * big_play_mod)):
             max_additional = ((20.0 * (rusher.speed / 100.0))
                               - (2.5 * (defense.get_player('LCB', 1).tackling / 100.0))
                               - (2.5 * (defense.get_player('RCB', 1).tackling / 100.0))
@@ -151,16 +151,16 @@ def rush(run_type, down, togo, yard_line, rb1, rb2, fb, te, offense, defense, pl
                               + (0.25 * (offense.team_mod - defense.team_mod))
                               + random.random())
 
-        if max_additional < 1:
-            max_additional = 1
+            if max_additional < 1:
+                max_additional = 1
 
-        gain += random.uniform(0, max_additional)
+            gain += random.uniform(0, max_additional)
 
-        if random_chance(break_stat / 2):
-            big_play_mod += 1
+            if random_chance(break_stat / 2):
+                big_play_mod += 1
 
-        if rusher.speed / 2 + (8 * big_play_mod) > 100:
-            gain = 101
+            if rusher.speed / 2 + (8 * big_play_mod) > 100:
+                gain = 101
 
     if random_chance(105 - rusher.break_tackle):
         gain -= 1
@@ -218,4 +218,4 @@ def rush(run_type, down, togo, yard_line, rb1, rb2, fb, te, offense, defense, pl
             if (yard_line - gain) < 100.0:
                 fumble = True
 
-    return gain
+    return gain, td
