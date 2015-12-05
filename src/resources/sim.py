@@ -26,7 +26,7 @@ class SimAPI(Resource):
 
         results = []
         for x in range(0, 25):
-            results.append(rush(1, 1, 10, 80,
+            results.append(int(rush(1, 1, 10, 80,
                             get_player_at_dc_pos_and_depth(off_players, "RB", "RB", 1),
                             get_player_at_dc_pos_and_depth(off_players, "RB", "RB", 2),
                             get_player_at_dc_pos_and_depth(off_players, "FB", "FB", 1),
@@ -34,7 +34,7 @@ class SimAPI(Resource):
                             off_team,
                             def_team,
                             off_team.team_mod - def_team.team_mod,
-                            off_team.run_blocking - def_team.run_defense))
+                            off_team.run_blocking - def_team.run_defense)))
 
         return Response("Troy White: "
                         + str(len(results))

@@ -14,6 +14,11 @@ class Team(object):
                 return player
         return None
 
+    def get_player(self, dc_position, depth):
+        for player in self.players:
+            if player.dc_position == dc_position and player.depth == depth:
+                return player
+        return None
 
 def get_players_at_position(players, position):
     pos_players = []
