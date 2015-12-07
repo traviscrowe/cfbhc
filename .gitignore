@@ -3,10 +3,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# C extensions
+*.so
+
 # Distribution / packaging
 .Python
-venv
-flask/
+.idea/
 env/
 build/
 develop-eggs/
@@ -42,3 +44,19 @@ htmlcov/
 nosetests.xml
 coverage.xml
 *,cover
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Misc
+.DS_Store
