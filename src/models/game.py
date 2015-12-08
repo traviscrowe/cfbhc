@@ -1,7 +1,7 @@
 
 
 class Game(object):
-    def __init__(self, home_team, stadium, weather):
+    def __init__(self, home_team, away_team, stadium, weather):
         self.home_team = home_team
         self.away_team = away_team
         self.stadium = stadium

@@ -1,3 +1,4 @@
+__author__ = 'traviscrowe'
 from enum import Enum
 from services.rng import random_chance, weighted_choice
 import random
@@ -21,7 +22,7 @@ class PassTypes(Enum):
     QB_KNEEL = 5
 
 
-def rush(run_type, down, togo, yard_line, rb1, rb2, fb, te, offense, defense, play_mod, run_mod):
+def run_play(run_type, down, togo, yard_line, rb1, rb2, fb, te, offense, defense, play_mod, run_mod):
     rusher = None
     direction = ''
     break_stat = 50.0
@@ -241,3 +242,204 @@ def rush(run_type, down, togo, yard_line, rb1, rb2, fb, te, offense, defense, pl
         fumble_forcer = weighted_choice(choices)
 
     return gain, td
+
+
+def pass_play(pass_type, offense, defense, play_mod):
+    pass_mod = random.randint(-5, 5)
+
+    max_gain = (3.25
+        + (10.0 * (offense.get_player('QB', 1).throw_power / 100.0))
+        + (1.5 * play_mod)
+        + (0.15 * (offense.team_mod - defense.team_mod))
+        + (0.5 * pass_mod))
+
+    gain = random.randint(1 + pass_mod, max_gain + pass_mod)
+
+    if gain > 9:
+        foo = 0
+        #TODO implement pancacke logic
+
+    if pass_type is 2:
+        gain = random.randint(offense.get_player('QB', 1).throw_power / 2 + pass_mod,
+                              offense.get_player('QB', 1).throw_power / 2 + max_gain + pass_mod)
+
+    receiver = None
+
+    check_down = False
+
+    pass_mod = random.randint(-5, 5)
+
+    ag_play = (72.5 +
+               offense.get_player('QB', 1).throw_power / 10
+               + ((offense.gameplan.o_aggression - 50) / 50) + ((defense.gameplan.d_aggression - 50) / 50)
+               - (defense.get_player('CB', 1).coverage - 50) / 7.5
+               - (defense.get_player('CB', 1).coverage - 50) / 7.5
+               + pass_mod
+               + play_mod
+               + random.random())
+
+    if pass_type is 0:
+        ag_play -= 5
+
+    if pass_type is 1:
+        ag_play += 5
+
+    if ag_play > 80:
+        ag_play = 80
+    elif ag_play < 65:
+        ag_play = 65
+
+    if pass_type is 3:
+        ag_play = 95
+
+    if random_chance(ag_play):
+        lb_coverage = (defense.get_player('LOLB', 1).coverage
+                       + defense.get_player('ROLB', 1).coverage) - 100
+
+        weighted_choices = [
+            (offense.get_player('WR', 1),
+            (offense.get_player('WR', 1).catching * 3.05
+             + offense.get_player('WR', 1).acceleration
+             - ((defense.get_player('CB', 1).coverage - 50.0) / 25.0)
+             + random.random())),
+            (offense.get_player('WR', 2),
+            (offense.get_player('WR', 2).catching * 3.05
+             + offense.get_player('WR', 2).acceleration
+             - ((defense.get_player('CB', 2).coverage - 50.0) / 25.0)
+             + random.random())),
+            (offense.get_player('WR', 3),
+            (offense.get_player('WR', 3).catching * 3.05
+             + offense.get_player('WR', 3).acceleration
+             - ((defense.get_player('SS', 1).coverage - 50.0) / 50.0)
+             - ((defense.get_player('FS', 1).coverage - 50.0) / 50.0)
+             + random.random())),
+            (offense.get_player('TE', 1),
+            (offense.get_player('TE', 1).catching * 3.05
+             - lb_coverage / 50.0
+             - ((offense.gameplan.o_aggression - 50.0) / 50.0)
+             + offense.get_player('TE', 1).speed / 2.0
+             + random.random()))
+        ]
+
+        receiver = weighted_choice(weighted_choices)
+    else:
+        weighted_choices = [
+            (offense.get_player('TE', 1), (offense.get_player('TE', 1).catching * 1.5) + 1),
+            (offense.get_player('RB', 1), offense.get_player('RB', 1).catching),
+            (offense.get_player('RB', 2), offense.get_player('RB', 2).catching),
+            (offense.get_player('FB', 1), offense.get_player('FB', 1).catching)
+        ]
+
+        receiver = weighted_choice(weighted_choices)
+
+        if receiver is offense.get_player('RB', 1):
+            weighted_choices = [
+                (offense.get_player('RB', 1),
+                offense.get_player('RB', 1).catching * 2
+                + offense.get_player('RB', 2).catching * 2 + 1),
+                (offense.get_player('FB', 1),
+                offense.get_player('FB', 1) / 2 + 1)
+            ]
+
+            receiver = weighted_choice(weighted_choices)
+
+            if receiver is offense.get_player('RB', 1):
+                weighted_choices = [
+                    (offense.get_player('RB', 1),
+                    offense.get_player('RB', 1) * 2 + 1),
+                    (offense.get_player('RB', 2),
+                    offense.get_player('RB', 2) * 2 + 1)
+                ]
+
+                receiver = weighted_choice(weighted_choices)
+
+    if pass_type is 4:
+        weighted_choices = [
+            (offense.get_player('RB', 1),
+            offense.get_player('RB', 1) * 2 + 1),
+            (offense.get_player('RB', 2),
+            offense.get_player('RB', 2) * 2 + 1)
+        ]
+
+        receiver = weighted_choice(weighted_choices)
+
+    break_stat = 50
+
+    if receiver is offense.get_player('WR', 1):
+        break_stat = receiver.acceleration
+
+        if random_chance(105 - receiver.acceleration):
+            check_down = True
+    elif receiver is offense.get_player('WR', 2):
+        break_stat = receiver.acceleration
+
+        if random_chance(105 - receiver.acceleration):
+            check_down = True
+    elif receiver is offense.get_player('WR', 3):
+        break_stat = receiver.acceleration
+
+        if random_chance(105 - receiver.acceleration):
+            check_down = True
+    elif receiver is offense.get_player('TE', 1):
+        break_stat = receiver.speed
+
+        if random_chance(105 - receiver.speed / 1.5 + random.random()):
+            check_down = True
+    elif receiver is offense.get_player('RB', 1) or offense.get_player('RB', 2):
+        break_stat = receiver.agility
+
+        if random_chance(105 - receiver.agility / 1.75 + random.random()):
+            check_down = True
+    elif receiver is offense.get_player('FB', 1):
+        break_stat = receiver.break_tackle
+
+        if random_chance(105 - receiver.speed / 2.0 + random.random()):
+            check_down = True
+
+    pass_mod = random.randint(-3, 3)
+
+    if check_down:
+        max_gain = (1.0
+            + (4.0 * (receiver.speed / 100.0))
+            - (0.25 * (defense.get_player('CB', 1).tackling / 100.0))
+            - (0.25 * (defense.get_player('CB', 2).tackling / 100.0))
+            - (0.25 * (defense.get_player('SS', 1).tackling / 100.0))
+            - (0.25 * (defense.get_player('FS', 1).tackling / 100.0))
+            + (1.0 * ((offense.gameplan.o_aggression - (100 - defense.gameplan.d_aggression)) / 100.0))
+            - (1.0 * (100 - defense.gameplan.d_run) / 100.0) + pass_mod + random.random())
+
+        while not random_chance(defense.get_player('SS', 1).tackling + 1)\
+            and not random_chance(defense.get_player('FS', 1).tackling + 1)\
+                and (max_gain < 200):
+            max_gain += 0.25
+    else:
+        max_gain = (2.0
+            + (12.0 * (receiver.speed / 100.0))
+            - (0.5 * (defense.get_player('CB', 1).tackling / 100.0))
+            - (0.5 * (defense.get_player('CB', 2).tackling / 100.0))
+            - (0.5 * (defense.get_player('SS', 1).tackling / 100.0))
+            - (0.5 * (defense.get_player('FS', 1).tackling / 100.0))
+            + (1.0 * ((offense.gameplan.o_aggression - (100 - defense.gameplan.d_aggression)) / 100.0))
+            - (1.0 * (100 - defense.gameplan.d_run) / 100.0) + pass_mod + random.random())
+
+        while not random_chance(defense.get_player('SS', 1).tackling + 1)\
+            and not random_chance(defense.get_player('FS', 1).tackling + 1)\
+                and (max_gain < 200):
+            max_gain += 0.5
+
+    if max_gain < 0:
+        max_gain = 0
+
+    gain += random.randint(0, int(max_gain))
+
+    break_free = (break_stat / 2.5 + random.randint(-5, 5) + random.random())
+
+    if check_down:
+        break_free = (break_stat / 5.0 + random.randint(-5, 5) + random.random())
+
+    if break_free < 15:
+        break_free = 15
+
+    num_free = 0
+
+    return gain

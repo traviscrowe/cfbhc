@@ -5,7 +5,7 @@ from flask_restful import Resource
 from models.player import Player
 from models.gameplan import Gameplan
 from models.team import Team
-from services.simulation import rush
+from services.simulation import run_play, pass_play
 
 
 class SimAPI(Resource):
@@ -27,7 +27,7 @@ class SimAPI(Resource):
         results = []
         touchdowns = 0
         for x in range(0, random.randint(250, 350)):
-            response = rush(1, 1, 10, random.randint(5, 80),
+            response = run_play(1, 1, 10, random.randint(5, 80),
                             off_team.get_player("RB", 1),
                             off_team.get_player("RB", 2),
                             off_team.get_player("FB", 1),
