@@ -26,24 +26,32 @@ class SimAPI(Resource):
 
         results = []
         touchdowns = 0
+        fumbles = 0
+        forcers = []
         for x in range(0, random.randint(250, 350)):
             response = run_play(1, 1, 10, random.randint(5, 80),
-                            off_team.get_player("RB", 1),
-                            off_team.get_player("RB", 2),
-                            off_team.get_player("FB", 1),
-                            off_team.get_player("TE", 1),
+                            off_team.get_player('RB', 1),
+                            off_team.get_player('RB', 2),
+                            off_team.get_player('FB', 1),
+                            off_team.get_player('TE', 1),
                             off_team,
                             def_team,
                             off_team.team_mod - def_team.team_mod,
                             off_team.run_blocking - def_team.run_defense)
             results.append(int(response[0]))
             touchdowns += response[1]
+            fumbles += 1 if response[2] else 0
+            if response[3] is not None:
+                forcers.append(response[3])
 
-        return Response("Troy White: "
+        return Response('Troy White: '
                         + str(len(results))
-                        + " for " + str(sum(results))
-                        + " yards, "
+                        + ' for ' + str(sum(results))
+                        + ' yards, '
                         + str(touchdowns)
-                        + " TD for an average of "
-                        + str(sum(results) / float(len(results))) + ". Long: "
-                        + str(max(results)))
+                        + ' TD for an average of '
+                        + str(sum(results) / float(len(results))) + '. Long: '
+                        + str(max(results))
+                        + ' Fumbles: '
+                        + str(fumbles)
+                        + ' [%s]' % ', '.join(map(str, forcers)))

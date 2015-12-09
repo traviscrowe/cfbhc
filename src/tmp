@@ -1,19 +1,66 @@
-// Can't have negative gain.
-if (maxGain < 0)
-    maxGain = 0;
+if (fumble) {
+    if (((gain < 10) && randomChanceL(95)) || randomChanceL(5)) { // Normally
+                                                                    // less
+                                                                    // than
+                                                                    // 10
+                                                                    // yards
+                                                                    // means
+                                                                    // it
+                                                                    // was
+                                                                    // a
+                                                                    // LB
+        if (defense.the43) {
+            int fumbleNum = chooseX(defense.lb1.getStat(Team.TACKLE) + 1,
+                    defense.lb2.getStat(Team.TACKLE) + 1,
+                    defense.lb3.getStat(Team.TACKLE) + 1,
+                    defense.cb1.getStat(Team.TACKLE) * 2 - defense.cb1.getStat(Team.COVERAGE) + 1,
+                    defense.cb2.getStat(Team.TACKLE) * 2 - defense.cb2.getStat(Team.COVERAGE) + 1, 0, 0);
 
-// Add random amount of maxGain to gain.
-gain += getRandomL(0, (int)maxGain);
+            if (fumbleNum == 1)
+                fumbleForcer = defense.lb1;
+            else if (fumbleNum == 2)
+                fumbleForcer = defense.lb2;
+            else if (fumbleNum == 3)
+                fumbleForcer = defense.lb3;
+            else if (fumbleNum == 4)
+                fumbleForcer = defense.cb1;
+            else if (fumbleNum == 5)
+                fumbleForcer = defense.cb2;
+        } else {
+            int fumbleNum = chooseX(defense.lb1.getStat(Team.TACKLE) + 1,
+                    defense.lb2.getStat(Team.TACKLE) + 1,
+                    defense.lb3.getStat(Team.TACKLE) + 1,
+                    defense.dl4.getStat(Team.TACKLE) + 1,
+                    defense.cb1.getStat(Team.TACKLE) + 1,
+                    defense.cb2.getStat(Team.TACKLE) + 1, 0);
 
-// Break Free is the chance to break. Higher if not a check down.
-int breakFree = (int) (breakStat / 2.5 + getRandomL(-5, 5) + getVariability());
-if (checkDown) {
-    breakFree = (int) (breakStat / 5.0 + getRandomL(-5, 5) + getVariability());
+            if (fumbleNum == 1)
+                fumbleForcer = defense.lb1;
+            else if (fumbleNum == 2)
+                fumbleForcer = defense.lb2;
+            else if (fumbleNum == 3)
+                fumbleForcer = defense.lb3;
+            else if (fumbleNum == 4)
+                fumbleForcer = defense.dl4;
+            else if (fumbleNum == 5)
+                fumbleForcer = defense.cb1;
+            else if (fumbleNum == 6)
+                fumbleForcer = defense.cb2;
+        }
+    } else { // Or maybe it was a secondary person ...
+
+        int fumbleNum = chooseX(defense.cb1.getStat(Team.TACKLE) + 1,
+                defense.cb2.getStat(Team.TACKLE) + 1,
+                defense.s1.getStat(Team.TACKLE) + 1,
+                defense.s2.getStat(Team.TACKLE) + 1, 0, 0, 0);
+
+        if (fumbleNum == 1)
+            fumbleForcer = defense.cb1;
+        else if (fumbleNum == 2)
+            fumbleForcer = defense.cb2;
+        else if (fumbleNum == 3)
+            fumbleForcer = defense.s1;
+        else if (fumbleNum == 4)
+            fumbleForcer = defense.s2;
+    }
 }
-
-// Cannot be less than 15.
-if (breakFree < 15) {
-    breakFree = 15;
-}
-
-int numFree = 0;

@@ -29,8 +29,7 @@ class Player(object):
         self.type = get_type_by_position(throw_power, throw_accuracy, speed, break_tackle, catching,
                                          agility, run_blocking, pass_blocking, acceleration, pass_rush,
                                          run_defense,
-                                         coverage, tackling, kick_power, kick_accuracy, concentration, position,
-                                         dc_position, depth)
+                                         coverage, tackling, kick_power, kick_accuracy, position)
 
 
 def get_overall_by_position(throw_power, throw_accuracy, speed, break_tackle, catching,
@@ -61,28 +60,28 @@ def get_overall_by_position(throw_power, throw_accuracy, speed, break_tackle, ca
 
 
 def get_type_by_position(throw_power, throw_accuracy, speed, break_tackle, catching,
-                         agility, run_blocking, pass_blocking, pass_rush,
+                         agility, run_blocking, pass_blocking, acceleration, pass_rush,
                          run_defense,
                          coverage, tackling, kick_power, kick_accuracy, position):
-    if position is 'QB':
+    if position == 'QB':
         return qb_type(throw_power, throw_accuracy, speed)
-    if position is 'RB':
+    if position == 'RB':
         return rb_type(speed, break_tackle, agility)
-    if position is 'FB':
+    if position == 'FB':
         return fb_type(catching, run_blocking)
-    if position is 'TE':
+    if position == 'TE':
         return te_type(catching, run_blocking)
-    if position is 'WR':
+    if position == 'WR':
         return wr_type(speed, catching)
-    if position is 'OT' or position is 'C' or position is 'OG':
+    if position == 'OT' or position == 'C' or position == 'OG':
         return ol_type(run_blocking, pass_blocking)
-    if position is 'DE' or position is 'DT':
+    if position == 'DE' or position == 'DT':
         return dl_type(pass_rush, run_defense)
-    if position is 'OLB' or position is 'ILB':
+    if position == 'OLB' or position == 'ILB':
         return lb_type(pass_rush, tackling, coverage)
-    if position is 'CB' or position is 'SS' or position is 'FS':
+    if position == 'CB' or position == 'SS' or position == 'FS':
         return cb_s_type(catching, coverage, tackling)
-    if position is 'K' or 'P':
+    if position == 'K' or 'P':
         return st_type(kick_power, kick_accuracy)
 
 

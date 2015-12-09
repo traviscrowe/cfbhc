@@ -10,3 +10,4 @@ class Game(object):
         self.quarter = 1
         self.down = 1
         self.to_go = 10
+        self.yard_line = 35
