@@ -12,7 +12,8 @@ api.add_resource(team.TeamListAPI, '/api/team')
 api.add_resource(team.TeamAPI, '/api/team/<int:id>')
 api.add_resource(player.PlayerListAPI, '/api/team/<int:id>/player')
 api.add_resource(player.PlayerAPI, '/api/team/<int:id>/player/<int:p_id>')
-api.add_resource(sim.SimAPI, '/api/sim')
+api.add_resource(sim.RunAPI, '/api/sim/run')
+api.add_resource(sim.PassAPI, '/api/sim/pass')
 
 if __name__ == '__main__':
     app.run(debug=False)

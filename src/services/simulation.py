@@ -257,15 +257,15 @@ def pass_play(pass_type, offense, defense, play_mod, game):
         + (0.15 * (offense.team_mod - defense.team_mod))
         + (0.5 * pass_mod))
 
-    gain = random.randint(1 + pass_mod, max_gain + pass_mod)
+    gain = random.randint(int(1 + pass_mod), int(max_gain + pass_mod))
 
     if gain > 9:
         foo = 0
         #TODO implement pancacke logic
 
     if pass_type is 2:
-        gain = random.randint(offense.get_player('QB', 1).throw_power / 2 + pass_mod,
-                              offense.get_player('QB', 1).throw_power / 2 + max_gain + pass_mod)
+        gain = random.randint(int(offense.get_player('QB', 1).throw_power / 2 + pass_mod),
+                              int(offense.get_player('QB', 1).throw_power / 2 + max_gain + pass_mod))
 
     receiver = None
 
@@ -276,8 +276,8 @@ def pass_play(pass_type, offense, defense, play_mod, game):
     ag_play = (72.5 +
                offense.get_player('QB', 1).throw_power / 10
                + ((offense.gameplan.o_aggression - 50) / 50) + ((defense.gameplan.d_aggression - 50) / 50)
-               - (defense.get_player('CB', 1).coverage - 50) / 7.5
-               - (defense.get_player('CB', 1).coverage - 50) / 7.5
+               - (defense.get_player('LCB', 1).coverage - 50) / 7.5
+               - (defense.get_player('RCB', 1).coverage - 50) / 7.5
                + pass_mod
                + play_mod
                + random.random())
@@ -302,33 +302,33 @@ def pass_play(pass_type, offense, defense, play_mod, game):
 
         weighted_choices = [
             (offense.get_player('WR', 1),
-            (offense.get_player('WR', 1).catching * 3.05
+            int((offense.get_player('WR', 1).catching * 3.05
              + offense.get_player('WR', 1).acceleration
-             - ((defense.get_player('CB', 1).coverage - 50.0) / 25.0)
-             + random.random())),
+             - ((defense.get_player('LCB', 1).coverage - 50.0) / 25.0)
+             + random.random()))),
             (offense.get_player('WR', 2),
-            (offense.get_player('WR', 2).catching * 3.05
+            int((offense.get_player('WR', 2).catching * 3.05
              + offense.get_player('WR', 2).acceleration
-             - ((defense.get_player('CB', 2).coverage - 50.0) / 25.0)
-             + random.random())),
+             - ((defense.get_player('RCB', 1).coverage - 50.0) / 25.0)
+             + random.random()))),
             (offense.get_player('WR', 3),
-            (offense.get_player('WR', 3).catching * 3.05
+            int((offense.get_player('WR', 3).catching * 3.05
              + offense.get_player('WR', 3).acceleration
              - ((defense.get_player('SS', 1).coverage - 50.0) / 50.0)
              - ((defense.get_player('FS', 1).coverage - 50.0) / 50.0)
-             + random.random())),
+             + random.random()))),
             (offense.get_player('TE', 1),
-            (offense.get_player('TE', 1).catching * 3.05
+            int((offense.get_player('TE', 1).catching * 3.05
              - lb_coverage / 50.0
              - ((offense.gameplan.o_aggression - 50.0) / 50.0)
              + offense.get_player('TE', 1).speed / 2.0
-             + random.random()))
+             + random.random())))
         ]
 
         receiver = weighted_choice(weighted_choices)
     else:
         weighted_choices = [
-            (offense.get_player('TE', 1), (offense.get_player('TE', 1).catching * 1.5) + 1),
+            (offense.get_player('TE', 1), int((offense.get_player('TE', 1).catching * 1.5) + 1)),
             (offense.get_player('RB', 1), offense.get_player('RB', 1).catching),
             (offense.get_player('RB', 2), offense.get_player('RB', 2).catching),
             (offense.get_player('FB', 1), offense.get_player('FB', 1).catching)
@@ -342,7 +342,7 @@ def pass_play(pass_type, offense, defense, play_mod, game):
                 offense.get_player('RB', 1).catching * 2
                 + offense.get_player('RB', 2).catching * 2 + 1),
                 (offense.get_player('FB', 1),
-                offense.get_player('FB', 1) / 2 + 1)
+                int(offense.get_player('FB', 1).catching / 2 + 1))
             ]
 
             receiver = weighted_choice(weighted_choices)
@@ -350,9 +350,9 @@ def pass_play(pass_type, offense, defense, play_mod, game):
             if receiver is offense.get_player('RB', 1):
                 weighted_choices = [
                     (offense.get_player('RB', 1),
-                    offense.get_player('RB', 1) * 2 + 1),
+                    offense.get_player('RB', 1).catching * 2 + 1),
                     (offense.get_player('RB', 2),
-                    offense.get_player('RB', 2) * 2 + 1)
+                    offense.get_player('RB', 2).catching * 2 + 1)
                 ]
 
                 receiver = weighted_choice(weighted_choices)
@@ -405,8 +405,8 @@ def pass_play(pass_type, offense, defense, play_mod, game):
     if check_down:
         max_gain = (1.0
             + (4.0 * (receiver.speed / 100.0))
-            - (0.25 * (defense.get_player('CB', 1).tackling / 100.0))
-            - (0.25 * (defense.get_player('CB', 2).tackling / 100.0))
+            - (0.25 * (defense.get_player('LCB', 1).tackling / 100.0))
+            - (0.25 * (defense.get_player('RCB', 1).tackling / 100.0))
             - (0.25 * (defense.get_player('SS', 1).tackling / 100.0))
             - (0.25 * (defense.get_player('FS', 1).tackling / 100.0))
             + (1.0 * ((offense.gameplan.o_aggression - (100 - defense.gameplan.d_aggression)) / 100.0))
@@ -419,8 +419,8 @@ def pass_play(pass_type, offense, defense, play_mod, game):
     else:
         max_gain = (2.0
             + (12.0 * (receiver.speed / 100.0))
-            - (0.5 * (defense.get_player('CB', 1).tackling / 100.0))
-            - (0.5 * (defense.get_player('CB', 2).tackling / 100.0))
+            - (0.5 * (defense.get_player('LCB', 1).tackling / 100.0))
+            - (0.5 * (defense.get_player('RCB', 1).tackling / 100.0))
             - (0.5 * (defense.get_player('SS', 1).tackling / 100.0))
             - (0.5 * (defense.get_player('FS', 1).tackling / 100.0))
             + (1.0 * ((offense.gameplan.o_aggression - (100 - defense.gameplan.d_aggression)) / 100.0))
@@ -449,8 +449,8 @@ def pass_play(pass_type, offense, defense, play_mod, game):
     while random_chance(break_free + (10 * num_free)) and gain <= 100:
         max_gain = (2.5
             + (22.5 * (receiver.speed / 100.0))
-            - (3.5 * (defense.get_player('CB', 1).tackling / 100.0))
-            - (3.5 * (defense.get_player('CB', 2).tackling / 100.0))
+            - (3.5 * (defense.get_player('LCB', 1).tackling / 100.0))
+            - (3.5 * (defense.get_player('RCB', 1).tackling / 100.0))
             - (5.5 * (defense.get_player('SS', 1).tackling / 100.0))
             - (5.5 * (defense.get_player('FS', 1).tackling / 100.0))
             + (2.0 * play_mod)
@@ -483,8 +483,8 @@ def pass_play(pass_type, offense, defense, play_mod, game):
         td = 0
 
         fum_chance = ((1.55 * receiver.concentration)
-            - (0.1 * defense.get_player('CB', 1).tackling)
-            - (0.1 * defense.get_player('CB', 2).tackling)
+            - (0.1 * defense.get_player('LCB', 1).tackling)
+            - (0.1 * defense.get_player('RCB', 1).tackling)
             - (0.15 * defense.get_player('SS', 1).tackling)
             - (0.15 * defense.get_player('FS', 1).tackling)
             + (0.2 * (((100 - offense.gameplan.o_aggression)
@@ -500,16 +500,16 @@ def pass_play(pass_type, offense, defense, play_mod, game):
     fumble_forcer = defense.get_player('RDE', 1)
 
     if fumble:
-        if ((gain < 10) and random_chance(950)) or random_chance(5):
+        if ((gain < 10) and random_chance(95)) or random_chance(5):
             if defense.gameplan.d_style is '43':
                 choices = [
                     (defense.get_player('LOLB', 1), defense.get_player('LOLB', 1).tackling + 1),
                     (defense.get_player('MLB', 1), defense.get_player('MLB', 1).tackling + 1),
                     (defense.get_player('ROLB', 1), defense.get_player('ROLB', 1).tackling + 1),
-                    (defense.get_player('CB', 1), defense.get_player('CB', 1).tackling * 2
-                     - defense.get_player('CB', 1).coverage + 1),
-                    (defense.get_player('CB', 2), defense.get_player('CB', 2).tackling * 2
-                     - defense.get_player('CB', 2).coverage + 1)
+                    (defense.get_player('LCB', 1), defense.get_player('LCB', 1).tackling * 2
+                     - defense.get_player('LCB', 1).coverage + 1),
+                    (defense.get_player('LCB', 2), defense.get_player('LCB', 2).tackling * 2
+                     - defense.get_player('LCB', 2).coverage + 1)
                 ]
                 fumble_forcer = weighted_choice(choices)
             else:
@@ -518,17 +518,17 @@ def pass_play(pass_type, offense, defense, play_mod, game):
                     (defense.get_player('LILB', 1), defense.get_player('LILB', 1).tackling + 1),
                     (defense.get_player('RILB', 1), defense.get_player('RILB', 1).tackling + 1),
                     (defense.get_player('ROLB', 1), defense.get_player('ROLB', 1).tackling + 1),
-                    (defense.get_player('CB', 1), defense.get_player('CB', 1).tackling + 1),
-                    (defense.get_player('CB', 2), defense.get_player('CB', 2).tackling + 1)
+                    (defense.get_player('LCB', 1), defense.get_player('LCB', 1).tackling + 1),
+                    (defense.get_player('RCB', 1), defense.get_player('RCB', 1).tackling + 1)
                 ]
                 fumble_forcer = weighted_choice(choices)
         else:
             choices = [
-                (defense.get_player('CB', 1), defense.get_player('CB', 1).tackling + 1),
-                (defense.get_player('CB', 2), defense.get_player('CB', 2).tackling + 1),
+                (defense.get_player('LCB', 1), defense.get_player('LCB', 1).tackling + 1),
+                (defense.get_player('RCB', 1), defense.get_player('RCB', 1).tackling + 1),
                 (defense.get_player('SS', 1), defense.get_player('SS', 1).tackling + 1),
                 (defense.get_player('FS', 1), defense.get_player('FS', 1).tackling + 1)
             ]
             fumble_forcer = weighted_choice(choices)
 
-    return gain, td, fumble
+    return receiver.name, gain, td, fumble

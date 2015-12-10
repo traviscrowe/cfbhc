@@ -5,10 +5,11 @@ from flask_restful import Resource
 from models.player import Player
 from models.gameplan import Gameplan
 from models.team import Team
+from models.game import Game
 from services.simulation import run_play, pass_play
 
 
-class SimAPI(Resource):
+class RunAPI(Resource):
     def post(self):
         req = request.get_json()
 
@@ -55,3 +56,29 @@ class SimAPI(Resource):
                         + ' Fumbles: '
                         + str(fumbles)
                         + ' [%s]' % ', '.join(map(str, forcers)))
+
+
+class PassAPI(Resource):
+    def post(self):
+        req = request.get_json()
+
+        offense = req['offense']
+        defense = req['defense']
+
+        game = Game(offense, defense, None, None)
+
+        off_players = [Player(**player) for player in offense['players']]
+        def_players = [Player(**player) for player in defense['players']]
+
+        off_gameplan = Gameplan(50, 50)
+        def_gameplan = Gameplan(50, 50)
+
+        off_team = Team(off_players, off_gameplan, offense['team_mod'])
+        def_team = Team(def_players, def_gameplan, defense['team_mod'])
+
+        results = []
+        for x in range(0, random.randint(250, 350)):
+            response = pass_play(1, off_team, def_team, off_team.team_mod - def_team.team_mod, game)
+            results.append(response)
+
+        return results
