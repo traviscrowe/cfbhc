@@ -6,7 +6,7 @@ from models.player import Player
 from models.gameplan import Gameplan
 from models.team import Team
 from models.game import Game
-from services.simulation import run_play, pass_play
+from services.simulation import run_play, completed_pass
 
 
 class RunAPI(Resource):
@@ -78,7 +78,7 @@ class PassAPI(Resource):
 
         results = []
         for x in range(0, random.randint(250, 350)):
-            response = pass_play(1, off_team, def_team, off_team.team_mod - def_team.team_mod, game)
+            response = completed_pass(1, off_team, def_team, off_team.team_mod - def_team.team_mod, game)
             results.append(response)
 
         return results

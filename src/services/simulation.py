@@ -248,7 +248,44 @@ def run_play(run_type, down, togo, yard_line, rb1, rb2, fb, te, offense, defense
     return gain, td, fumble, fumble_forcer.name if fumble else None
 
 
-def pass_play(pass_type, offense, defense, play_mod, game):
+def pass_play(pass_type, offense, defense, play_mod, game, sack_mod):
+    pass_type_mod = 0
+
+    if pass_type is 3:
+        # if total run plays - 3 >= total pass plays in this game by the offense
+        pass_type_mod = 5
+        # else pass_type_mod = -5
+    if pass_type is 4:
+        pass_type_mod = 10
+
+    if random_chance(get_completion_chance(game, play_mod) + pass_type_mod):
+        return completed_pass(pass_type, offense, defense, play_mod, game)
+    else:
+        incompletion_chance = 85.0 + (game.offense.pass_blocking / 5.0) \
+            - (1.5 * (100 - game.defense.gameplan.d_run) / 100.0) \
+            + (2.0 * play_mod) \
+            + (0.5 * (offense.team_mod - defense.team_mod)) \
+            + ((100.0 - offense.gameplan.o_aggression) / 100.0) \
+            - (defense.gameplan.d_aggression / 100.0) \
+            + random.random()
+
+        choices = [
+            (1, int(get_sack_chance(game), sack_mod)),
+            (2, 0),
+            (3, int(incompletion_chance))
+        ]
+        result = weighted_choice(choices)
+
+        if result == 1:
+            print('sack!')  # sack()
+        elif result == 2:
+            print('interception!')  # interception()
+        # elif check_scramble():
+        else:
+            print('incomplete!')  # incompletion()
+
+
+def completed_pass(pass_type, offense, defense, play_mod, game):
     pass_mod = random.randint(-5, 5)
 
     max_gain = (3.25
@@ -532,3 +569,107 @@ def pass_play(pass_type, offense, defense, play_mod, game):
             fumble_forcer = weighted_choice(choices)
 
     return receiver.name, gain, td, fumble
+
+
+def get_completion_chance(game, play_mod):
+    chance_mod = random.randint(-3, 3)
+
+    chance = (27.5
+        + (30.0 * (game.offense.get_player('QB', 1).throw_accuracy / 100.0))
+        + (2.5 * (game.offense.get_player('QB', 1).throw_power / 100.0))
+        + (20.0 * (game.offense.pass_blocking / 100.0))
+        + (2.5 * (game.offense.get_player('TE', 1).run_blocking / 100.0))
+        + (2.5 * (game.offense.get_player('FB', 1).run_blocking / 100.0))
+        + (4.5 * (game.offense.get_player('TE', 1).catching / 100.0))
+        + (0.5 * (game.offense.get_player('WR', 1).concentration / 100.0))
+        + (0.5 * (game.offense.get_player('WR', 2).concentration / 100.0))
+        + (0.5 * (game.offense.get_player('WR', 3).concentration / 100.0))
+        + (4.0 * (game.offense.get_player('WR', 1).acceleration / 100.0))
+        + (4.0 * (game.offense.get_player('WR', 2).acceleration / 100.0))
+        + (4.0 * (game.offense.get_player('WR', 3).acceleration / 100.0))
+        + (6.0 * (game.offense.get_player('WR', 1).catching / 100.0))
+        + (6.0 * (game.offense.get_player('WR', 2).catching / 100.0))
+        + (6.0 * (game.offense.get_player('WR', 3).catching / 100.0))
+        + (0.5 * (game.offense.get_player('RB', 1).catching / 100.0))
+        + (0.5 * (game.offense.get_player('RB', 2).catching / 100.0))
+        + (0.05 * (game.offense.get_player('FB', 1).catching / 100.0))
+        - (8.5 * (game.defense.get_player('LCB', 1).coverage / 100.0))
+        - (8.5 * (game.defense.get_player('RCB', 1).coverage / 100.0))
+        - (7.0 * (game.defense.get_player('SS', 1).coverage / 100.0))
+        - (7.0 * (game.defense.get_player('FS', 1).coverage / 100.0))
+        + (0.5 * (game.offense.get_player('QB', 1).speed / 100.0))
+        + (2.0 * (game.offense.get_player('QB', 1).concentration / 100.0))
+        + (3.0 * play_mod)
+        + (0.25 * (game.offense.team_mod - game.defense.team_mod))
+        + (1.0 * game.pass_mod)
+        - (1.25 * (100 - game.defense.drun) / 100.0)
+        + (1.0 * ((100.0 - game.offense.gameplan.o_aggression) / 100.0))
+        - (1.0 * ((100.0 - game.defense.gameplan.d_aggression) / 100.0))
+        + chance_mod + random.random())
+
+    if game.defense.style is '43':
+        chance += (0
+            - (20.0 * (game.defense.pass_rush / 100.0))
+            - (2.5 * (game.defense.get_player('LOLB', 1).pass_rush / 100.0))
+            - (2.5 * (game.defense.get_player('MLB', 1).pass_rush / 100.0))
+            - (2.5 * (game.defense.get_player('ROLB', 1).pass_rush / 100.0))
+            - (2.0 * (game.defense.get_player('LOLB', 1).coverage / 100.0))
+            - (2.0 * (game.defense.get_player('MLB', 1).coverage / 100.0))
+            - (2.0 * (game.defense.get_player('ROLB', 1).coverage / 100.0)))
+    else:
+        chance += (0
+            - (6.5 *  (game.defense.pass_rush / 100.0))
+            - (4.75 * (game.defense.get_player('LOLB', 1).pass_rush / 100.0))
+            - (4.75 * (game.defense.get_player('LILB', 1).pass_rush / 100.0))
+            - (4.75 * (game.defense.get_player('RILB', 1).pass_rush / 100.0))
+            - (4.75 * (game.defense.get_player('ROLB', 1).pass_rush / 100.0))
+            - (2.0 * (game.defense.get_player('LOLB', 1).coverage / 100.0))
+            - (2.0 * (game.defense.get_player('LILB', 1).coverage / 100.0))
+            - (2.0 * (game.defense.get_player('RILB', 1).coverage / 100.0))
+            - (2.0 * (game.defense.get_player('ROLB', 1).coverage / 100.0)))
+
+    while (chance < 60) and not random_chance(game.defense.get_player('RCB', 1).coverage + 1) \
+            and not random_chance(game.defense.get_player('FS', 1) + 1):
+        chance += 0.25
+        if chance > 60:
+            chance = 60
+
+    if chance < 52:
+        chance += (52 - chance) / 1.5
+
+    if chance > 62:
+        chance += (chance - 62) / 1.5
+
+    if game.yard_line <= 10:
+        chance -= 3
+
+    return chance
+
+
+def get_sack_chance(game):
+    chance_mod = random.randint(-3, 3)
+
+    chance = (0.0
+        - (20.0 * (game.offense.pass_blocking / 100.0))
+        - (0.75 * (game.offense.get_player('QB', 1).speed / 100.0))
+        - (0.75 * (game.offense.get_player('QB', 1).throw_power / 100.0))
+        - (1.0 * (game.offense.get_player('FB', 1).pass_protect / 100.0))
+        - (0.75 * (game.offense.get_player('TE', 1).pass_protect / 100.0))
+        + chance_mod + random.random())
+
+    if game.defense.style is '43':
+        chance += ((35.0 * (game.defense.pass_rush / 100.0))
+            + (3.0 * (game.defense.get_player('LOLB', 1).pass_rush / 100.0))
+            + (3.0 * (game.defense.get_player('MLB', 1).pass_rush / 100.0))
+            + (3.0 * (game.defense.get_player('ROLB', 1).pass_rush / 100.0)))
+    else:
+        chance += ((9.0 * (game.defense.pass_rush / 100.0))
+            + (9.0 * (game.defense.get_player('LOLB', 1).pass_rush / 100.0))
+            + (8.5 * (game.defense.get_player('LILB', 1).pass_rush / 100.0))
+            + (8.5 * (game.defense.get_player('RILB', 1).pass_rush / 100.0))
+            + (9.0 * (game.defense.get_player('ROLB', 1).pass_rush / 100.0)))
+
+    if chance < 0.0:
+        chance = 0.0
+
+    return chance
