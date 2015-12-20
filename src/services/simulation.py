@@ -24,11 +24,9 @@ class PassTypes(Enum):
 
 def run_play(run_type, down, togo, yard_line, rb1, rb2, fb, te, offense, defense, play_mod, run_mod):
     rusher = None
-    direction = ''
     break_stat = 50.0
 
     if run_type is 0:
-        direction = 'inside'
         if togo is 1:
             break_stat = fb.speed * 0.75
             rusher = fb
@@ -38,15 +36,12 @@ def run_play(run_type, down, togo, yard_line, rb1, rb2, fb, te, offense, defense
     elif run_type is 1 or run_type is 2:
         break_stat = rb1.agility
         rusher = rb1
-        direction = 'inside'
     elif run_type is 3 or run_type is 4:
         break_stat = rb2.agility
         rusher = rb2
-        direction = 'outside'
     elif run_type is 5:
         break_stat = fb.speed * 0.75
         rusher = fb
-        direction = 'inside'
 
     rush_mod = random.randint(-4, 3)
     min_rush = (-3.0
