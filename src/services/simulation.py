@@ -668,3 +668,48 @@ def get_sack_chance(game):
         chance = 0.0
 
     return chance
+
+def get_interception_chance():
+    chance_mod = random.randint(-3, 3)
+
+    chance = (0.0
+        + (6.5 * (game.defense.get_player('CB', 1).catching / 100.0))
+        + (6.5 * (game.defense.get_player('CB', 2).catching / 100.0))
+        + (0.5 * (game.defense.get_player('CB', 1).coverage / 100.0))
+        + (0.5 * (game.defense.get_player('CB', 2).coverage / 100.0))
+        + (7.0 * (game.defense.get_player('FS', 1).catching / 100.0))
+        + (7.0 * (game.defense.get_player('SS', 1).catching / 100.0))
+        - (3.0 * (game.offense.get_player('QB', 1).throw_accuracy / 100.0))
+        - (0.0 * (game.defense.get_player('QB', 1).throw_accuracy / 100.0))
+        - (15.5 * (game.defense.get_player('CB', 1).concentration / 100.0))
+        - (6.5 * (game.defense.get_player('CB', 1).catching / 100.0))
+        - (0.0 * (game.defense.pass_blocking / 100.0))
+        - (0.5 * (game.defense.get_player('WR', 1).concentration / 100.0))
+        - (0.5 * (game.defense.get_player('WR', 2).concentration / 100.0))
+        - (0.5 * (game.defense.get_player('WR', 3).concentration / 100.0))
+        + chance_mod + random.random())
+
+        if chance < 0.0:
+            chance = 0.0
+
+        return chance
+#		double chance =  (0.0
+# 		+ (6.5 *  (defense.cb1.getStat(Team.CATCHING) / 100.0))
+# 		+ (6.5 *  (defense.cb2.getStat(Team.CATCHING) / 100.0))
+# 		+ (0.5 *  (defense.cb1.getStat(Team.COVERAGE) / 100.0))
+# 		+ (0.5 *  (defense.cb1.getStat(Team.COVERAGE) / 100.0))
+# 		+ (7.0 *  (defense.s1.getStat(Team.CATCHING) / 100.0))
+# 		+ (7.0 *  (defense.s2.getStat(Team.CATCHING) / 100.0))
+# 		- (3.0 *  (offense.qb.getStat(Team.THROW_ACCURACY) / 100.0))
+# 		- (0.0 *  (offense.qb.getStat(Team.THROW_POWER) / 100.0))
+# 		- (15.5 *  (offense.qb.getStat(Team.CONCENTRATION) / 100.0))
+# 		- (0.0 *  (offense.ol.passB / 100.0))
+# 		- (0.5 *  (offense.wr1.getStat(Team.CONCENTRATION) / 100.0))
+# 		- (0.5 *  (offense.wr2.getStat(Team.CONCENTRATION) / 100.0))
+# 		- (0.5 *  (offense.wr3.getStat(Team.CONCENTRATION) / 100.0))
+# 		+ getVariability());
+#
+# if (chance < 0.0)
+# 	chance = 0.0;
+#
+# return chance;
