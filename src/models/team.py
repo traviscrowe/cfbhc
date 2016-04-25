@@ -7,6 +7,7 @@ class Team(object):
         self.team_mod = team_mod
         self.run_defense = calculate_run_defense(players, gameplan.d_style)
         self.pass_rush = calculate_pass_rush(players, gameplan.d_style)
+        self.score = 0
 
     def get_player_at_dc_pos_and_depth(self, position, dc_position, depth):
         for player in self.players:

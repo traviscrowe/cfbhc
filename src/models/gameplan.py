@@ -9,3 +9,4 @@ class Gameplan(object):
         self.o_rb1 = 75
         self.o_rb2 = 25
         self.o_aggression = 50
+        self.fg_try = 35

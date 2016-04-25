@@ -1,6 +1,7 @@
 __author__ = 'traviscrowe'
 from enum import Enum
-from services.rng import random_chance, weighted_choice
+from services.rng import random_chance, random_weighted_choice, random_in_range, random_variability
+from engine.clock import Clock
 import random
 
 
@@ -22,7 +23,283 @@ class PassTypes(Enum):
     QB_KNEEL = 5
 
 
-def run_play(run_type, down, togo, yard_line, rb1, rb2, fb, te, offense, defense, play_mod, run_mod):
+def run(game):
+    if random_chance(50):
+        game.offense = game.away
+        game.defense = game.home
+    else:
+        game.offense = game.home
+        game.defense = game.away
+
+    game.kicking_team = game.defense
+
+    while game.time > 0:
+        if game.overtime is False:
+            if game.last_time > 2700 and game.time <= 2700:
+                game.quarter = 2
+            if game.last_time > 1800 and game.time <= 1800:
+                game.quarter = 3
+                game.time = 1800
+
+                if game.kicking_team != game.offense:
+                    tmp = game.offense
+                    game.offense = game.defense;
+                    game.defense = tmp;
+
+                #TODO implement second half kickoff
+            if game.last_time > 900 and game.time <= 900:
+                game.quarter = 4
+        else:
+            if game.offense.score != game.defense.score:
+                game.time = 0
+
+        if game.down < 4:
+            game = determine_play(game)
+        elif game.down == 4:
+            game = execute_fourth_down(game)
+        else:
+            game = execute_turnover(game)
+
+        if game.time <= 0:
+            #TODO check overtime
+
+    return game;
+
+
+def determine_play(game):
+    if determine_premature_fg(game):
+        return execute_field_goal(game)
+    elif determine_qb_kneel(game):
+        return execute_qb_kneel(game)
+    elif determine_run_play(game):
+        return execute_run_play(game)
+    else:
+        if determine_qb_scramble(game):
+            return execute_qb_scramble(game);
+        else:
+            return execute_pass_play(game)
+
+
+def execute_fourth_down(game):
+    desperation_time = 160 + (game.offense.gameplan.o_aggression / 2)
+
+    if (game.offense.score < game.defense.score) and (game.time <= 900) and (time <= (desperation_time * ((game.defense.score - game.offense.score) / 8) + 1):
+        if (game.offense.score) + 3 >= game.defense.score or time > (desperation_time (game.defense.score - game.offense.score - 3) / 9:
+            if game.yard_line <= game.offense.gameplan.fg_try:
+                return execute_field_goal(game)
+        return determine_play(game)
+    else:
+        to_go_mod = game.yard_line
+        go_chance = (100 - game.offense.gameplan.o_aggression) +
+            (4 * (game.yard_line - 40)) +
+            (to_go_mod * (game.to_go - 1)
+
+        if game.yard_line <= game.offense.gameplan.fg_try:
+            return execute_field_goal(game)
+        else if game.yard_line <= 55 and random_in_range(-1, go_chance) <= 10 and go_chance <= 500 and game.to_go <= 6
+            return determine_play(game)
+        else:
+            return execute_punt(game)
+
+def execute_turnover(game):
+    tmp = game.offense
+    game.offense = game.defense
+    game.defense = tmp
+
+    game.yard_line = 100 - game.yard_line
+    game.to_go = 10
+    if game.to_go > game.yard_line:
+        game.to_go = game.yard_line
+    game.down = 1
+
+    return game
+
+
+def execute_field_goal(game):
+    chance_mod = random_in_range(-10, 10)
+    chance = ((100 * (game.offense.get_player('K', 1).kick_accuracy) / 100.0)
+        + (60 * (game.offense.get_player('K', 1).kick_power) / 100.0)
+        - (2.5 * game.yard_line)
+        + (3 * chance_mod)
+        + game.kick_mod
+        + random_variability()
+
+    if chance > 100:
+        chance = 100
+
+    if chance < 1 and random_chance(1):
+        chance = 1
+
+    if random_chance(chance):
+        game.offense.score += 3
+
+    game = Clock.spend_time(3, 7, 3, False)
+
+    return game
+
+
+def execute_punt(game):
+    punter = game.offense.get_player('P', 1)
+    returner = game.defense.get_player('KR', 1)
+    punt_mod = random_in_range(-7, 7)
+    max_punt = 15.0
+        + (45.0 * (punter.kick_power) / 100.0)
+        + game.kick_mod
+        + random_variability()
+    min_punt = 10.0
+        + (35.0 * (punter.kick_power) / 100.0)
+        + game.kick_mod
+        + random_variability()
+    #TODO implement st_mod (based on special teams blocking/coverage)
+    punt = random_in_range(min_punt + punt_mod, max_punt + punt_mod) + 1
+
+    #TODO implement great_blocking based on special teams blocking/coverage
+    return_mod = random_in_range(-5, 5)
+
+    choices = [
+        (1, punter.kick_accuracy),
+        (2, punter.kick_accuracy + 50 + punt_mod),
+        (3, 200)
+    ]
+    punt_type = random_weighted_choice(choices)
+
+    if punt >= game.yard_line - 5:
+        punt_type = 1
+
+    if punt >= game.yard_line + 5:
+        punt = game.yard_line + 5
+
+    touchback = False
+    touchdown = False
+    returns = 0
+    net_punt = punt
+    original_int = game.yard_line
+
+    if punt_type == 1:
+        game.yard_line = game.yard_line - punt
+    else if punt_type == 2:
+        punt = punt - random_in_range(5, 15)
+        net_punt = punt
+        game.yard_line = game.yard_line - punt
+    else:
+        return_stat = returner.agility if returner.agility > returner.concentration else returner.concentration
+        min_return = 0.1 * return_stat + random_variability() + return_mod
+        max_return = 0.25 * returner.speed + random_variability() + return_mod
+
+        returns = random_in_range(min_return + return_mod, max_return + return_mod)
+
+        #TODO if great_blocking (ln 4924)
+
+        yl_togo = 100 - (game.yard_line - punt)
+        game.yard_line = game.yard_line - punt + returns
+
+        if game.yard_line > 99:
+            touchdown = True
+            returns = yl_togo
+            game.yard_line = 100
+
+    if game.yard_line < 1:
+        game.yard_line = 20
+        touchback = True
+        net_punt = original_int - 20
+
+    in_20 = False
+    if game.yard_line < 20:
+        in_20 = True
+
+    if touchdown:
+        defense.score = defense.score += 6
+        game = Clock.spend_time(10, 15, 10, False)
+        game = execute_turnover()
+        if game.last_time < 1800 and game.time >= 1800 and (game.overtime is False or game.offense.score == game.defense.score):
+            game = execute_kickoff(game)
+    else:
+        if punt_type == 3:
+            game = Clock.spend_time(5, 15, 5, False)
+        else:
+            game = Clock.spend_time(3, 8, 3, False)
+        game = execute_turnover()
+
+    #TODO log play results with returns, touchdown, offense
+
+    return game
+
+
+def execute_kickoff(game):
+    return game
+
+
+def execute_onside_kickoff(game):
+    return game
+
+
+def execute_qb_kneel(game):
+    return game
+
+
+def determine_premature_fg(game):
+    return game
+
+
+def determine_qb_kneel(game):
+    return (game.offense.score > game.defense.score) and
+        (game.time <= (40 * (4 - game.down))) and
+        (game.yard_line < 99) and
+        (game.time <= 120)
+
+
+def get_play_mod(game):
+    mod = 0
+    third_apply = True
+
+    if game.yard_line <= 5:
+        mod += 2 * (6 - game.yard_line)
+
+    if game.time <= 1800:
+        if game.offense.score >= game.defense.score + 7:
+            sev = game.offense.score - game.defense.score
+            sev = sev/7
+            if sev > 0:
+                sev -= 1
+
+            mod += random_in_range(-1 - sev, 0)
+
+    if game.offense.score > game.defense.score:
+        third_apply = False
+        if game.time <= 300:
+            mod += 30
+        elif game.time <= 120:
+            mod += 40
+    elif game.offense.score < game.defense.score:
+        if game.time <= 420:
+            mod -= 30
+        elif game.time <= 180:
+            mod -= 40
+    elif game.time <= Clock.calculate_seconds(4, 13, 0):
+        if game.yard_line <= 50:
+            mod -= 10
+        else:
+            third_apply = False
+            mod += 10
+
+    if (game.time >= Clock.calculate_seconds(3, 0, 0)) and (game.time <= Clock.calculate_seconds(2, 10, 0)):
+        if game.yard_line <= 50:
+            mod -= 10
+        else:
+            third_apply = false
+            mod += 10
+
+    if ((game.down == 3) and third_apply is True) or game.down = 4:
+        intensity = -3
+        if down == 4:
+            intensity = -4
+
+        mod += intensity * (game.to_go - 5)
+
+    return mod
+
+
+def execute_run_play(run_type, down, togo, yard_line, rb1, rb2, fb, te, offense, defense, play_mod, run_mod):
     rusher = None
     break_stat = 50.0
 
@@ -171,7 +448,7 @@ def run_play(run_type, down, togo, yard_line, rb1, rb2, fb, te, offense, defense
                             (offense.get_player('RG', 1), 1),
                             (offense.get_player('RT', 1), 1)]
 
-        allowed_loss = weighted_choice(weighted_choices)
+        allowed_loss = random_weighted_choice(weighted_choices)
 
         # TODO record TFL allowed here
     elif gain > 5:
@@ -222,7 +499,7 @@ def run_play(run_type, down, togo, yard_line, rb1, rb2, fb, te, offense, defense
                     (defense.get_player('MLB', 1), defense.get_player('MLB', 1).tackling),
                     (defense.get_player('ROLB', 1), defense.get_player('ROLB', 1).tackling)
                 ]
-                fumble_forcer = weighted_choice(choices)
+                fumble_forcer = random_weighted_choice(choices)
             else:
                 choices = [
                     (defense.get_player('LOLB', 1), defense.get_player('LOLB', 1).tackling),
@@ -230,7 +507,7 @@ def run_play(run_type, down, togo, yard_line, rb1, rb2, fb, te, offense, defense
                     (defense.get_player('RILB', 1), defense.get_player('RILB', 1).tackling),
                     (defense.get_player('ROLB', 1), defense.get_player('ROLB', 1).tackling)
                 ]
-                fumble_forcer = weighted_choice(choices)
+                fumble_forcer = random_weighted_choice(choices)
     else:
         choices = [
             (defense.get_player('LCB', 1), defense.get_player('LCB', 1).tackling),
@@ -238,7 +515,7 @@ def run_play(run_type, down, togo, yard_line, rb1, rb2, fb, te, offense, defense
             (defense.get_player('SS', 1), defense.get_player('SS', 1).tackling),
             (defense.get_player('FS', 1), defense.get_player('FS', 1).tackling)
         ]
-        fumble_forcer = weighted_choice(choices)
+        fumble_forcer = random_weighted_choice(choices)
 
     return gain, td, fumble, fumble_forcer.name if fumble else None
 
@@ -269,15 +546,18 @@ def pass_play(pass_type, offense, defense, play_mod, game, sack_mod):
             (2, 0),
             (3, int(incompletion_chance))
         ]
-        result = weighted_choice(choices)
+        result = random_weighted_choice(choices)
 
         if result == 1:
             print('sack!')  # sack()
+            #TODO implement sack() method
         elif result == 2:
             print('interception!')  # interception()
+            #TODO implement interception() method
         # elif check_scramble():
         else:
             print('incomplete!')  # incompletion()
+            #TODO implement incompletion() method
 
 
 def completed_pass(pass_type, offense, defense, play_mod, game):
@@ -287,7 +567,7 @@ def completed_pass(pass_type, offense, defense, play_mod, game):
         + (10.0 * (offense.get_player('QB', 1).throw_power / 100.0))
         + (1.5 * play_mod)
         + (0.15 * (offense.team_mod - defense.team_mod))
-        + (0.5 * pass_mod))
+        + (0.5 * game.pass_mod))
 
     gain = random.randint(int(1 + pass_mod), int(max_gain + pass_mod))
 
@@ -308,8 +588,8 @@ def completed_pass(pass_type, offense, defense, play_mod, game):
     ag_play = (72.5 +
                offense.get_player('QB', 1).throw_power / 10
                + ((offense.gameplan.o_aggression - 50) / 50) + ((defense.gameplan.d_aggression - 50) / 50)
-               - (defense.get_player('LCB', 1).coverage - 50) / 7.5
-               - (defense.get_player('RCB', 1).coverage - 50) / 7.5
+               - (defense.get_player('CB', 1).coverage - 50) / 7.5
+               - (defense.get_player('CB', 1).coverage - 50) / 7.5
                + pass_mod
                + play_mod
                + random.random())
@@ -357,7 +637,7 @@ def completed_pass(pass_type, offense, defense, play_mod, game):
              + random.random())))
         ]
 
-        receiver = weighted_choice(weighted_choices)
+        receiver = random_weighted_choice(weighted_choices)
     else:
         weighted_choices = [
             (offense.get_player('TE', 1), int((offense.get_player('TE', 1).catching * 1.5) + 1)),
@@ -366,7 +646,7 @@ def completed_pass(pass_type, offense, defense, play_mod, game):
             (offense.get_player('FB', 1), offense.get_player('FB', 1).catching)
         ]
 
-        receiver = weighted_choice(weighted_choices)
+        receiver = random_weighted_choice(weighted_choices)
 
         if receiver is offense.get_player('RB', 1):
             weighted_choices = [
@@ -377,7 +657,7 @@ def completed_pass(pass_type, offense, defense, play_mod, game):
                 int(offense.get_player('FB', 1).catching / 2 + 1))
             ]
 
-            receiver = weighted_choice(weighted_choices)
+            receiver = random_weighted_choice(weighted_choices)
 
             if receiver is offense.get_player('RB', 1):
                 weighted_choices = [
@@ -387,7 +667,7 @@ def completed_pass(pass_type, offense, defense, play_mod, game):
                     offense.get_player('RB', 2).catching * 2 + 1)
                 ]
 
-                receiver = weighted_choice(weighted_choices)
+                receiver = random_weighted_choice(weighted_choices)
 
     if pass_type is 4:
         weighted_choices = [
@@ -397,7 +677,7 @@ def completed_pass(pass_type, offense, defense, play_mod, game):
             offense.get_player('RB', 2) * 2 + 1)
         ]
 
-        receiver = weighted_choice(weighted_choices)
+        receiver = random_weighted_choice(weighted_choices)
 
     break_stat = 50
 
@@ -543,7 +823,7 @@ def completed_pass(pass_type, offense, defense, play_mod, game):
                     (defense.get_player('LCB', 2), defense.get_player('LCB', 2).tackling * 2
                      - defense.get_player('LCB', 2).coverage + 1)
                 ]
-                fumble_forcer = weighted_choice(choices)
+                fumble_forcer = random_weighted_choice(choices)
             else:
                 choices = [
                     (defense.get_player('LOLB', 1), defense.get_player('LOLB', 1).tackling + 1),
@@ -553,7 +833,7 @@ def completed_pass(pass_type, offense, defense, play_mod, game):
                     (defense.get_player('LCB', 1), defense.get_player('LCB', 1).tackling + 1),
                     (defense.get_player('RCB', 1), defense.get_player('RCB', 1).tackling + 1)
                 ]
-                fumble_forcer = weighted_choice(choices)
+                fumble_forcer = random_weighted_choice(choices)
         else:
             choices = [
                 (defense.get_player('LCB', 1), defense.get_player('LCB', 1).tackling + 1),
@@ -561,7 +841,7 @@ def completed_pass(pass_type, offense, defense, play_mod, game):
                 (defense.get_player('SS', 1), defense.get_player('SS', 1).tackling + 1),
                 (defense.get_player('FS', 1), defense.get_player('FS', 1).tackling + 1)
             ]
-            fumble_forcer = weighted_choice(choices)
+            fumble_forcer = random_weighted_choice(choices)
 
     return receiver.name, gain, td, fumble
 
@@ -669,6 +949,7 @@ def get_sack_chance(game):
 
     return chance
 
+
 def get_interception_chance():
     chance_mod = random.randint(-3, 3)
 
@@ -693,23 +974,3 @@ def get_interception_chance():
             chance = 0.0
 
         return chance
-#		double chance =  (0.0
-# 		+ (6.5 *  (defense.cb1.getStat(Team.CATCHING) / 100.0))
-# 		+ (6.5 *  (defense.cb2.getStat(Team.CATCHING) / 100.0))
-# 		+ (0.5 *  (defense.cb1.getStat(Team.COVERAGE) / 100.0))
-# 		+ (0.5 *  (defense.cb1.getStat(Team.COVERAGE) / 100.0))
-# 		+ (7.0 *  (defense.s1.getStat(Team.CATCHING) / 100.0))
-# 		+ (7.0 *  (defense.s2.getStat(Team.CATCHING) / 100.0))
-# 		- (3.0 *  (offense.qb.getStat(Team.THROW_ACCURACY) / 100.0))
-# 		- (0.0 *  (offense.qb.getStat(Team.THROW_POWER) / 100.0))
-# 		- (15.5 *  (offense.qb.getStat(Team.CONCENTRATION) / 100.0))
-# 		- (0.0 *  (offense.ol.passB / 100.0))
-# 		- (0.5 *  (offense.wr1.getStat(Team.CONCENTRATION) / 100.0))
-# 		- (0.5 *  (offense.wr2.getStat(Team.CONCENTRATION) / 100.0))
-# 		- (0.5 *  (offense.wr3.getStat(Team.CONCENTRATION) / 100.0))
-# 		+ getVariability());
-#
-# if (chance < 0.0)
-# 	chance = 0.0;
-#
-# return chance;
