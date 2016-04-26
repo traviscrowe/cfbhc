@@ -1,13 +1,35 @@
 __author__ = 'traviscrowe'
-import random
+import random, pdb
 from flask import request, Response
 from flask_restful import Resource
 from models.player import Player
 from models.gameplan import Gameplan
 from models.team import Team
 from models.game import Game
-from services.simulation import run_play, completed_pass
+from services.simulation import execute_run_play, completed_pass, run
 
+
+class SimAPI(Resource):
+    def post(self):
+        req = request.get_json()
+
+        home = req['home']
+        away = req['away']
+
+        home_players = [Player(**player) for player in home['players']]
+        away_players = [Player(**player) for player in away['players']]
+
+        home_gameplan = Gameplan(50, 50)
+        away_gameplan = Gameplan(50, 50)
+
+        home_team = Team(home_players, home_gameplan, home['team_mod'])
+        away_team = Team(away_players, away_gameplan, away['team_mod'])
+
+        game = Game(home_team, away_team, None, None, None)
+
+        game = run(game)
+
+        return game.log
 
 class RunAPI(Resource):
     def post(self):
@@ -30,7 +52,7 @@ class RunAPI(Resource):
         fumbles = 0
         forcers = []
         for x in range(0, random.randint(250, 350)):
-            response = run_play(1, 1, 10, random.randint(5, 80),
+            response = execute_run_play(1, 1, 10, random.randint(5, 80),
                             off_team.get_player('RB', 1),
                             off_team.get_player('RB', 2),
                             off_team.get_player('FB', 1),

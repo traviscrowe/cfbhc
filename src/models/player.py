@@ -187,13 +187,13 @@ def ol_type(run_blocking, pass_blocking):
 
 
 def dl_type(run_defense, pass_rush):
-    if run_defense >= 85 and pass_rush >= 85:
+    if run_defense >= 85 or pass_rush >= 85:
         return 'Run Stopper' if run_defense > pass_rush else 'Pass Rusher'
     return 'Balanced'
 
 
 def lb_type(pass_rush, tackle, coverage):
-    if pass_rush >= 85 and tackle >= 85 and coverage >= 85:
+    if pass_rush >= 85 or tackle >= 85 or coverage >= 85:
         if pass_rush > tackle and pass_rush > coverage:
             return 'Pass Rusher'
         if tackle > pass_rush and tackle > coverage:
@@ -204,7 +204,7 @@ def lb_type(pass_rush, tackle, coverage):
 
 
 def cb_s_type(catching, coverage, tackling):
-    if catching >= 85 and coverage >= 85 and tackling >= 85:
+    if catching >= 85 or coverage >= 85 or tackling >= 85:
         if catching > coverage and catching > tackling:
             return 'Playmaker'
         if coverage > catching and coverage > tackling:
@@ -214,6 +214,6 @@ def cb_s_type(catching, coverage, tackling):
 
 
 def st_type(kick_power, kick_accuracy):
-    if kick_power >= 85 and kick_accuracy >= 85:
+    if kick_power >= 85 or kick_accuracy >= 85:
         return 'Power' if kick_power > kick_accuracy else 'Accuracy'
     return 'Balanced'

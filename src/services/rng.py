@@ -15,13 +15,13 @@ def random_in_range(start, end):
 
     n_range = end - start + 1
     n_fraction = n_range * random.random()
-    n_random = fraction * start
+    n_random = n_fraction * start
 
     return n_random
 
 
 def random_variability():
-    r = random() * 2
+    r = random.random() * 2
     r = r - 1.0
 
     return r
