@@ -18,6 +18,7 @@ class Game(object):
         self.to_go = 10
         self.yard_line = 35
         self.overtime = False
+        self.play_mod = 0.0
         self.run_mod = 0.0
         self.pass_mod = 0.0
         self.kick_mod = 0.0

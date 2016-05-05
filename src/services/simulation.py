@@ -1,30 +1,36 @@
-__author__ = 'traviscrowe'
+"""
+Contains core simulation control - calls determinations which call executions and clock manipulation
+"""
+import pdb
 from enum import Enum
 from services.rng import random_chance, random_weighted_choice, random_in_range, random_variability
 from engine.clock import calculate_seconds, spend_time
-from engine.determinations import determine_
-import random, pdb
+from engine.determinations import determine_play
+from engine.executions.special_teams import execute_fourth_down, execute_turnover
 
 
-class RunTypes(Enum):
-    NO_PLAY = 0
-    RB1_INSIDE = 1
-    RB2_INSIDE = 2
-    RB1_OUTSIDE = 3
-    RB2_OUTSIDE = 4
-    FULLBACK = 5
-
-
-class PassTypes(Enum):
-    SLANT = 0
-    SHOTGUN = 1
-    HAIL_MARY = 2
-    PLAY_ACTION = 3
-    RB_SCREEN = 4
-    QB_KNEEL = 5
+# class RunTypes(Enum):
+#     NO_PLAY = 0
+#     RB1_INSIDE = 1
+#     RB2_INSIDE = 2
+#     RB1_OUTSIDE = 3
+#     RB2_OUTSIDE = 4
+#     FULLBACK = 5
+#
+#
+# class PassTypes(Enum):
+#     SLANT = 0
+#     SHOTGUN = 1
+#     HAIL_MARY = 2
+#     PLAY_ACTION = 3
+#     RB_SCREEN = 4
+#     QB_KNEEL = 5
 
 
 def run(game):
+    """
+    Primary entry point for game simulation
+    """
     pdb.set_trace()
     if random_chance(50):
         game.offense = game.away
@@ -69,6 +75,9 @@ def run(game):
     return game
 
 def get_play_mod(game):
+    """
+    Determines the global modifier for a given play
+    """
     mod = 0
     third_apply = True
 

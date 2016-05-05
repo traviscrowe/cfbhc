@@ -6,27 +6,39 @@ from engine.clock import spend_time
 from services.rng import random_in_range, random_variability, random_weighted_choice, random_chance
 
 def execute_fourth_down(game):
+    """
+    Executes a fourth down play, returns game state via a specific execution
+    """
     desperation_time = 160 + (game.offense.gameplan.o_aggression / 2)
 
-    if (game.offense.score < game.defense.score) and (game.time <= 900) and (time <= (desperation_time * ((game.defense.score - game.offense.score) / 8) + 1)):
-        if (game.offense.score) + 3 >= game.defense.score or time > (desperation_time (game.defense.score - game.offense.score - 3) / 9):
+    if ((game.offense.score < game.defense.score)
+            and (game.time <= 900)
+            and (game.time <= (desperation_time * ((game.defense.score - game.offense.score) / 8) + 1))):
+        if ((game.offense.score) + 3 >= game.defense.score
+                or game.time > (desperation_time (game.defense.score - game.offense.score - 3) / 9)):
             if game.yard_line <= game.offense.gameplan.fg_try:
                 return execute_field_goal(game)
         return determine_play(game)
     else:
         to_go_mod = game.yard_line
         go_chance = ((100 - game.offense.gameplan.o_aggression)
-            + (4 * (game.yard_line - 40))
-            + (to_go_mod * (game.to_go - 1)))
+                     + (4 * (game.yard_line - 40))
+                     + (to_go_mod * (game.to_go - 1)))
 
         if game.yard_line <= game.offense.gameplan.fg_try:
             return execute_field_goal(game)
-        elif game.yard_line <= 55 and random_in_range(-1, go_chance) <= 10 and go_chance <= 500 and game.to_go <= 6:
+        elif (game.yard_line <= 55
+              and random_in_range(-1, go_chance) <= 10
+              and go_chance <= 500
+              and game.to_go <= 6):
             return determine_play(game)
         else:
             return execute_punt(game)
 
 def execute_turnover(game):
+    """
+    Executes a turnover against the game state
+    """
     tmp = game.offense
     game.offense = game.defense
     game.defense = tmp
@@ -41,6 +53,9 @@ def execute_turnover(game):
 
 
 def execute_punt(game):
+    """
+    Executes a punt play
+    """
     punter = game.offense.get_player('P', 1)
     returner = game.defense.get_player('KR', 1)
     punt_mod = random_in_range(-7, 7)
@@ -105,13 +120,13 @@ def execute_punt(game):
         in_20 = True
 
     if touchdown:
-        defense.score += 6
+        game. defense.score += 6
         game = spend_time(10, 15, 10, False)
-        game = execute_turnover()
+        game = execute_turnover(game)
         if (game.last_time < 1800
-            and game.time >= 1800
-            and (game.overtime is False
-            or game.offense.score == game.defense.score)):
+                and game.time >= 1800
+                and (game.overtime is False
+                     or game.offense.score == game.defense.score)):
             game = execute_kickoff(game)
     else:
         if punt_type == 3:
@@ -126,14 +141,17 @@ def execute_punt(game):
 
 
 def execute_field_goal(game):
+    """
+    Executes a field goal play
+    """
     chance_mod = random_in_range(-10, 10)
     chance = ((100
-        * (game.offense.get_player('K', 1).kick_accuracy) / 100.0)
-        + (60 * (game.offense.get_player('K', 1).kick_power) / 100.0)
-        - (2.5 * game.yard_line)
-        + (3 * chance_mod)
-        + game.kick_mod
-        + random_variability())
+               * (game.offense.get_player('K', 1).kick_accuracy) / 100.0)
+              + (60 * (game.offense.get_player('K', 1).kick_power) / 100.0)
+              - (2.5 * game.yard_line)
+              + (3 * chance_mod)
+              + game.kick_mod
+              + random_variability())
 
     if chance > 100:
         chance = 100
@@ -149,12 +167,29 @@ def execute_field_goal(game):
     return game
 
 
-def execute_onside_kickoff(game):
+def execute_kickoff(game):
+    """
+    Executes a kickoff play
+    """
     return game
 
+
+def execute_onside_kickoff(game):
+    """
+    Executes an onside kickoff play
+    """
+    return game
+
+
 def execute_extra_point(game):
+    """
+    Executes an extra point play
+    """
     return game
 
 
 def execute_qb_kneel(game):
+    """
+    Executes a QB kneel play
+    """
     return game
