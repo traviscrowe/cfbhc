@@ -198,3 +198,12 @@ def determine_qb_scramble(game):
     Determines the chance for the QB to scramble on a pass play
     """
     return game
+
+
+def determine_onside_kick(game):
+    """
+    Determines the chance for kicking team to attempt an onside kick
+    """
+    desp_time = 160 + (game.offense.gameplan.o_aggression / 2)
+    return ((game.offense.score < game.defense.score) and (game.time <= 900)
+            and (game.time <= (desp_time * ((game.defense.score - game.offense.score) / 8) + 1)))

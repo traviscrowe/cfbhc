@@ -1,7 +1,7 @@
 """
 Execution logic for special teams plays
 """
-from engine.determinations import determine_play
+from engine.determinations import determine_play, determine_onside_kick
 from engine.clock import spend_time
 from services.rng import random_in_range, random_variability, random_weighted_choice, random_chance
 
@@ -171,6 +171,103 @@ def execute_kickoff(game):
     """
     Executes a kickoff play
     """
+    kicker = game.offense.get_player('K', 1)
+    returner = game.defense.get_player('KR', 1)
+    onside = determine_onside_kick(game)
+
+    if onside:
+        return execute_onside_kickoff(game)
+
+    chance_mod = random_in_range(-10, 10)
+    #TODO great blocking implementation
+    great_blocking = False
+    return_mod = random_in_range(-5, 5)
+
+    #TODO if great blocking
+
+    back_of_endzone = False
+    out_of_bounds = False
+
+    max_kick = (35
+            + 25
+            + (65 * (kicker.kick_power / 100.0))
+            + (2 * chance_mod)
+            + game.kick_mod
+            + random_variability())
+
+    min_kick = (35
+            + 20
+            + (55 * (kicker.kick_power / 100.0))
+            + (2 * chance_mod)
+            + game.kick_mod
+            + random_variability())
+
+    #TODO implement st_mod
+    st_mod = 0.0
+    return_stat = returner.agility
+    if (returner.agility < returner.concentration):
+        return_stat = returner.concentration
+
+    min_return = ((0.2 * return_stat + random_variability())
+            - st_mod
+            + return_mod)
+
+    max_return = ((0.35 * returner.speed + random_variability())
+            - st_mod
+            + return_mod)
+
+    returns = random_in_range((min_return + return_mod), max_return + return_mod)
+    kick = random_in_range((min_kick + chance_mod), (max_kick + chance_mod))
+
+    #TODO if great blocking breakaway
+
+    if kick > 105:
+        kick = 105
+        if random_chance(kicker.kick_power / 4 + kick_mod):
+            back_of_endzone = True
+            returns = 0
+    elif random_chance((100 - kicker.kick_accuracy) / 2 - kick_mod + 1):
+        out_of_bounds = True
+        kick = 60
+        returns = 0
+
+    if (kick >= 100) and great_blocking is False and random_chance(return_stat - 30):
+        returns = 0
+
+    if (kick >= 100) and great_blocking is False and returns < 15:
+        returns = 0
+
+    kick_return = kick - returns
+    touchback = False
+    touchdown = False
+    if kick_return > 99:
+        kick_return = 80
+        tocuhback = True
+
+    if kick_return < 1:
+        touchdown = True
+        returns = kick
+        kick_return = 0
+
+    if touchback is False and out_of_bounds is False:
+        log_kr = True
+        #TODO log KR to returner
+
+    game.yard_line = 100 - kick_return
+
+    if touchback:
+        log_tb = True
+        #TODO log touchback to kicker
+
+    if touchdown:
+        game.defense.score += 6
+        game = spend_time(10, 20, 10, False)
+        game = execute_turnover(game)
+        if game.overtime is False:
+            return execute_extra_point(game)
+
+    #TODO clean up post kickoff possession change logic
+
     return game
 
 
