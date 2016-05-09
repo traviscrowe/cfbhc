@@ -275,6 +275,23 @@ def execute_onside_kickoff(game):
     """
     Executes an onside kickoff play
     """
+    recover = random_weighted_choice(
+            1, game.offense.calculate_special_teams_rating(game.offense.players),
+            2, game.defense.calculate_special_teams_rating(game.defense.players) + 100)
+
+    recovering_team = game.offense if recover == 1 else game.defense
+
+    game.yard_line = 100 - 35 - 10 - random_in_range(0, 3)
+
+    game = spend_time(2, 5, 5, False)
+
+    #TODO log onside kick attempt and update game state
+
+    if recovering_team is game.defense:
+        return execute_turnover(game)
+
+    game.down = 1
+    game.to_go = game.yard_line if 10 > game.yard_line else 10
     return game
 
 

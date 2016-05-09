@@ -139,3 +139,14 @@ def calculate_34_pass_rush(players):
                  + (rde.pass_rush * 1.2)) / 3.2
 
     return pass_rush
+
+
+def calculate_special_teams_rating(players):
+    avg = (3.0
+           * get_player_at_dc_pos_and_depth(players, 'K', 'K', 1).overall
+           + 2.0
+           * get_player_at_dc_pos_and_depth(players, 'P', 'K', 1).overall
+           + 4.0)
+
+    avg = avg / 10.0
+    return avg
