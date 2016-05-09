@@ -207,3 +207,23 @@ def determine_onside_kick(game):
     desp_time = 160 + (game.offense.gameplan.o_aggression / 2)
     return ((game.offense.score < game.defense.score) and (game.time <= 900)
             and (game.time <= (desp_time * ((game.defense.score - game.offense.score) / 8) + 1)))
+
+
+def determine_two_point_conversion(game):
+    if game.time < 700:
+        if game.offense.score + 2 == game.defense.score - 7:
+            return True
+        elif game.offense.score + 2 == game.defense.score - 3:
+            return True
+        elif game.offense.score + 2 == game.defense.score:
+            return True
+
+    if game.time < 500:
+        if game.offense.score + 2 == game.defense.score + 7:
+            return True
+
+    if game.time < 300:
+        if game.offense.score + 2 == game.defense.score + 3:
+            return True
+
+    return False

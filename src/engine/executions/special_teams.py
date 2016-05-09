@@ -1,7 +1,8 @@
 """
 Execution logic for special teams plays
 """
-from engine.determinations import determine_play, determine_onside_kick
+from engine.determinations import determine_play, determine_onside_kick, determine_two_point_conversion
+from engine.executions import execute_run_play, execute_pass_play
 from engine.clock import spend_time
 from services.rng import random_in_range, random_variability, random_weighted_choice, random_chance
 
@@ -292,6 +293,7 @@ def execute_onside_kickoff(game):
 
     game.down = 1
     game.to_go = game.yard_line if 10 > game.yard_line else 10
+
     return game
 
 
@@ -299,6 +301,43 @@ def execute_extra_point(game):
     """
     Executes an extra point play
     """
+    two_point = determine_two_point_conversion(game)
+
+    if two_point:
+        return execute_two_point_conversion(game)
+
+    kick_mod = random_in_range(-10, 10)
+    chance = ((100 * game.offense.get_player('K', 1).kick_accuracy / 100.0)
+            + (60 * (game.offense.get_player('K', 1).kick_power / 100.0))
+            - (15 * 5)
+            + (2 * game.kick_mod)
+            + random_variability())
+
+    if chance > 100:
+        chance = 100
+
+    chance += game.kick_mod
+
+    if random_chance(chance):
+        game.offense.score += 1
+
+    #TODO log missed extra point
+
+    return game
+
+
+def execute_two_point_conversion(game):
+    """
+    Executes two point conversion
+    """
+    success = False
+    if random_chance(game.offense.gameplan.o_run):
+        game =  execute_run_play(game)
+    else:
+        game = execute_pass_play(game)
+
+    #TODO figure out how to unravel the mess of two point conversion play logic vs. static play logging
+
     return game
 
 
